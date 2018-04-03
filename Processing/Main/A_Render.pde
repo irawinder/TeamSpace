@@ -62,12 +62,24 @@ void render2D() {
     
   // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
   //
-  cam.drawControls();
+  //cam.drawControls();
   
   // Draw Margin ToolBar
   //
   bar_left.draw();
   bar_right.draw();
+  
+  // Right-hand Toolbar Titles
+  //
+  pushMatrix(); 
+  translate(bar_right.barX + bar_right.margin, bar_right.barY + bar_right.margin);
+  fill(255); 
+  textAlign(LEFT, TOP);
+  text("Compare Configurations (Filter Each Axis):", 0, 0*16);
+  text("X-AXIS:", 20                                        , 2*16);
+  text("Y-AXIS:", 20 + (bar_right.barW-2*bar_right.margin)/2, 2*16);
+  result.drawPlot(0, bar_right.barH - bar_right.barW + 2*bar_right.margin - 32, bar_right.barW - 2*bar_right.margin, bar_right.barW - 2*bar_right.margin - 32);
+  popMatrix();
 }
 
 PImage loadingBG;

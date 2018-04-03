@@ -25,6 +25,17 @@
 //
 void listen() {
   
+  // Constrain Buttons to viable solutions
+  //
+  constrainButtons();
+  
+  int num = result.name.size();
+  int beg = 0;
+  for (int i=0; i<num; i++) {
+    if (bar_right.radios.get(beg+i).value)     result.xIndex = i;
+    if (bar_right.radios.get(beg+i+num).value) result.yIndex = i;
+  }
+  
 }
 
 void mousePressed() { if (initialized) {
@@ -91,3 +102,33 @@ void keyReleased() { if (initialized) {
     bar_right.released();
   
 } }
+
+void constrainButtons() {
+  
+  // Results View: X-AXIS and Y-Axis - Set mutually exclusive radios to false
+  //
+  int num = result.name.size();
+  int beg = 0;
+  for (int i=0; i<num+1; i+=num) {
+    for (int j=0; j<num; j++) {
+      if(bar_right.radios.get(beg+i+j).hover() && bar_right.radios.get(beg+i+j).value) {
+        for (int k=0; k<num; k++) bar_right.radios.get(beg+i+k).value = false;
+        bar_right.radios.get(beg+i+j).value = true;
+      }
+    }
+  }
+  
+  // Results View: X-AXIS and Y-Axis - Set redundant radios to false; 1 button is always true
+  //
+  for (int i=0; i<num+1; i+=num) {
+    boolean found = false;
+    for (int j=0; j<num; j++) {
+      if(bar_right.radios.get(beg+i+j).value) {
+        for (int k=0; k<num; k++) bar_right.radios.get(beg+i+k).value = false;
+        bar_right.radios.get(beg+i+j).value = true;
+        found = true;
+      }
+    }
+    if (!found) bar_right.radios.get(beg+i).value = true;
+  }
+}

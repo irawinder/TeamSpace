@@ -52,7 +52,7 @@ void draw() {
     // A_Render.pde - Renders current frame of visualization
     //
     background(0);
-    render3D();
+    //render3D();
     if (showGUI) render2D();
   }
 }

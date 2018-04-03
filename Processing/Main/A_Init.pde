@@ -21,6 +21,18 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Name of Team's keylog file located in "/data/logs/..."
+//
+String FILE_NAME = "14_50_33_log.csv";
+
+// Tables Containing current simulation configuration and results
+//
+Table simConfig, simResultOverall, keyLog;
+
+// Objects for Viewing and Saving Results
+//
+GamePlot result;
+
 // Camera Object with built-in GUI for navigation and selection
 //
 Camera cam;
@@ -75,6 +87,9 @@ void init() {
     
     // Init Data
     // 
+    initSimConfig();
+    initSimResult();
+    initKeyLog();
     
   } else if (initPhase == 2) {
     
@@ -109,10 +124,11 @@ void initCamera() {
   
   // Add non-camera UI blockers and edit camera UI characteristics AFTER cam.init()
   //
-  cam.vs.xpos = width - 3*MARGIN - BAR_W;
-  //cam.hs.enable = false; //disable rotation
+  cam.vs.xpos = width - 3*MARGIN - bar_right.barW;
+  cam.hs.enable = false; //disable rotation
+  cam.vs.enable = false; //disable zoom
   cam.drag.addBlocker(MARGIN, MARGIN, BAR_W, BAR_H);
-  cam.drag.addBlocker(width - MARGIN - BAR_W, MARGIN, BAR_W, BAR_H);
+  cam.drag.addBlocker(width - MARGIN - bar_right.barW, MARGIN, BAR_W, BAR_H);
   
   // Turn cam off while still initializing
   //
@@ -129,16 +145,70 @@ void initToolbars() {
   
   // Left Toolbar
   bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
-  bar_left.title = "TeamSpace IO\n";
-  bar_left.credit = "(Left-hand Toolbar)\n\n";
-  bar_left.explanation = "";
+  bar_left.title = "TeamSpace IO\n\n";
+  bar_left.credit = "Press ' r ' to reset all inputs\n\n";
+  bar_left.explanation = "Filename:\n/data/logs/" + FILE_NAME;
   bar_left.controlY = BAR_Y + bar_left.margin + 2*bar_left.CONTROL_H;
   
   // Right Toolbar
-  bar_right = new Toolbar(width - (BAR_X + BAR_W), BAR_Y, BAR_W, BAR_H, MARGIN);
+  bar_right = new Toolbar(width - (BAR_X + int(1.5*BAR_W)), BAR_Y, int(1.5*BAR_W), BAR_H, MARGIN);
   bar_right.title = "";
-  bar_right.credit = "(Right-hand Toolbar)\n\n";
-  bar_right.explanation = "GUI3D Framework for explorable 3D model parameterized with sliders, radio buttons, and 3D Cursor. ";
-  bar_right.explanation += "\n\nPress ' r ' to reset all inputs\nPress ' p ' to print camera settings\nPress ' h ' to hide GUI";
-  bar_right.controlY = BAR_Y + bar_left.margin + 6*bar_left.CONTROL_H;
+  bar_right.credit = "";
+  bar_right.explanation = "";
+  bar_right.controlY = BAR_Y + bar_left.margin + 2*bar_left.CONTROL_H;
+  
+  int num = result.name.size();
+  println(num);
+  for (int j=0; j<2; j++) {
+    for (int i=0; i<num; i++) {
+      String name = result.name.get(i); 
+      if (name.length() > 18) 
+        name = name.substring(0,18);
+      bar_right.addRadio(name, 200, true,  '1', false);
+    }
+  }
+  
+  for (int i=num; i<2*num; i++) {
+    bar_right.radios.get(i).xpos = bar_right.barX + bar_right.barW/2;
+    bar_right.radios.get(i).ypos = bar_right.radios.get(i-num).ypos;
+  }
+  for (int i=0; i<2*num; i++) {
+    bar_right.radios.get(i).xpos += 20;
+    bar_right.radios.get(i).ypos -= (i%num)*10;
+  }
+}
+
+void initSimConfig() {
+  simConfig = loadTable("data/simulation/config/case_table4Workshop.csv", "header");
+}
+
+void initSimResult() {
+  simResultOverall = loadTable("data/simulation/result/1_overall.csv");
+  
+  result = new GamePlot();
+  for (int i=0; i<simResultOverall.getColumnCount(); i++) {
+    String name = simResultOverall.getString(0, i);
+    result.name.add(name);
+  }
+}
+
+void initKeyLog() {
+  keyLog = loadTable("data/logs/" + FILE_NAME, "header");
+  int numKPI    = result.name.size();
+  int numFields = keyLog.getColumnCount();
+  int numLogs   = keyLog.getRowCount();
+  Table overall;
+  for (int i=0; i<numLogs; i++) {
+    String action = keyLog.getString(i, "Action");
+    if (action.equals("Simulate")) {
+      overall = new Table();
+      overall.addRow();
+      for (int j=0; j<numKPI; j++) {
+        overall.addColumn();
+        float value = keyLog.getFloat(i, numFields - numKPI + j);
+        overall.setFloat(0, j, value);
+      }
+      result.addResult(overall);
+    }
+  }
 }
