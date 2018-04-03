@@ -31,6 +31,11 @@ public void settings() {
 //
 void setup() {
   
+  // Load default background image
+  //
+  loadingBG = loadImage("data/loadingScreen.jpg");
+  showLoad = true;
+      
 }
 
 // Runs on a infinite loop after setup

@@ -78,7 +78,13 @@ void render2D() {
   text("Compare Configurations (Filter Each Axis):", 0, 0*16);
   text("X-AXIS:", 20                                        , 2*16);
   text("Y-AXIS:", 20 + (bar_right.barW-2*bar_right.margin)/2, 2*16);
-  result.drawPlot(0, bar_right.barH - bar_right.barW + 2*bar_right.margin - 32, bar_right.barW - 2*bar_right.margin, bar_right.barW - 2*bar_right.margin - 32);
+  popMatrix();
+  
+  // Plots
+  //
+  pushMatrix(); translate(bar_left.barX + bar_left.barW + bar_left.margin, bar_left.barY);
+  if (showTrade) tradeSpace.drawPlot(0, 0, width - bar_left.barW - 3*bar_right.margin, height - 2*bar_right.margin);
+  if (showTeams) teamSpace.drawPlot( 0, 0, width - bar_left.barW - 3*bar_right.margin, height - 2*bar_right.margin);
   popMatrix();
 }
 

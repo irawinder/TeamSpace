@@ -24,6 +24,7 @@
 // Name of Team's keylog file located in "/data/logs/..."
 //
 String FILE_NAME = "14_50_33_log.csv";
+int NUM_FIELDS = 7; // Overrides the number of fields to detect
 
 // Tables Containing current simulation configuration and results
 //
@@ -31,7 +32,8 @@ Table simConfig, simResultOverall, keyLog;
 
 // Objects for Viewing and Saving Results
 //
-GamePlot result;
+GamePlot teamSpace, tradeSpace;
+boolean showTeams, showTrade;
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -51,63 +53,67 @@ PFont f12, f18, f24;
 // Counter to track which phase of initialization
 //
 boolean initialized;
+boolean showLoad;
 int initPhase = 0;
 int phaseDelay = 0;
 String status[] = {
   "Initializing Canvas ...",
   "Loading Data ...",
   "Initializing Toolbars and 3D Environment ...",
-  "Ready to go!"
+  "Ready to go!",
 };
 int NUM_PHASES = status.length;
 
 void init() {
   
   initialized = false;
-    
-  if (initPhase == 0) {
-    
-    // Load default background image
-    //
-    loadingBG = loadImage("data/loadingScreen.jpg");
-    
-    // Set Fonts
-    //
-    f12 = createFont("Helvetica", 12);
-    f18 = createFont("Helvetica", 18);
-    f24 = createFont("Helvetica", 24);
-    textFont(f12);
-    
-    // Create canvas for drawing everything to earth surface
-    //
-    B = new PVector(3000, 3000, 0);
-    MARGIN = 25;
-    
-  } else if (initPhase == 1) {
-    
-    // Init Data
-    // 
-    initSimConfig();
-    initSimResult();
-    initKeyLog();
-    
-  } else if (initPhase == 2) {
-    
-    // Initialize GUI3D
-    //
-    showGUI = true;
-    initToolbars();
-    initCamera();
-    
-  } else if (initPhase == 3) {
-    
-    initialized = true;
-  }
   
-  loadingScreen(loadingBG, initPhase, NUM_PHASES, status[initPhase]);
-  if (!initialized) initPhase++; 
-  delay(phaseDelay);
-
+  if (showLoad) {
+    
+    loadingScreen(loadingBG, initPhase, NUM_PHASES, status[initPhase]);
+    showLoad = false;
+    
+  } else {
+    
+    if (initPhase == 0) { showLoad = true;
+    
+      // Set Fonts
+      //
+      f12 = createFont("Helvetica", 12);
+      f18 = createFont("Helvetica", 18);
+      f24 = createFont("Helvetica", 24);
+      textFont(f12);
+      
+      // Create canvas for drawing everything to earth surface
+      //
+      B = new PVector(3000, 3000, 0);
+      MARGIN = 25;
+      
+    } else if (initPhase == 1) { showLoad = true;
+      
+      // Init Data
+      // 
+      initSimConfig();
+      initSimResult();
+      initKeyLog();
+      
+    } else if (initPhase == 2) { showLoad = true;
+      
+      // Initialize GUI3D
+      //
+      showGUI = true;
+      initToolbars();
+      initCamera();
+      
+    } else if (initPhase == 3) { showLoad = true;
+      
+      initialized = true;
+    }
+    
+    if (!initialized) initPhase++; 
+    delay(phaseDelay);
+    
+  }
 }
 
 void initCamera() {
@@ -141,29 +147,27 @@ void initToolbars() {
   BAR_X = MARGIN;
   BAR_Y = MARGIN;
   BAR_W = 250;
-  BAR_H = 800 - 2*MARGIN;
+  BAR_H = (800 - 3*MARGIN)/2;
   
   // Left Toolbar
-  bar_left = new Toolbar(BAR_X, BAR_Y, BAR_W, BAR_H, MARGIN);
+  bar_left = new Toolbar(BAR_X, BAR_Y, int(1.5*BAR_W), BAR_H, MARGIN);
   bar_left.title = "TeamSpace IO\n\n";
   bar_left.credit = "Press ' r ' to reset all inputs\n\n";
   bar_left.explanation = "Filename:\n/data/logs/" + FILE_NAME;
   bar_left.controlY = BAR_Y + bar_left.margin + 2*bar_left.CONTROL_H;
   
   // Right Toolbar
-  bar_right = new Toolbar(width - (BAR_X + int(1.5*BAR_W)), BAR_Y, int(1.5*BAR_W), BAR_H, MARGIN);
+  bar_right = new Toolbar(BAR_X, BAR_Y + BAR_H + MARGIN , int(1.5*BAR_W), BAR_H, MARGIN);
   bar_right.title = "";
   bar_right.credit = "";
   bar_right.explanation = "";
-  bar_right.controlY = BAR_Y + bar_left.margin + 2*bar_left.CONTROL_H;
+  bar_right.controlY = BAR_Y + BAR_H + MARGIN + bar_right.margin + 2*bar_right.CONTROL_H;
   
-  int num = result.name.size();
-  println(num);
+  int num = teamSpace.name.size();
   for (int j=0; j<2; j++) {
     for (int i=0; i<num; i++) {
-      String name = result.name.get(i); 
-      if (name.length() > 18) 
-        name = name.substring(0,18);
+      String name = teamSpace.name.get(i); 
+      if (name.length() > 18) name = name.substring(0,18);
       bar_right.addRadio(name, 200, true,  '1', false);
     }
   }
@@ -183,21 +187,77 @@ void initSimConfig() {
 }
 
 void initSimResult() {
-  simResultOverall = loadTable("data/simulation/result/1_overall.csv");
   
-  result = new GamePlot();
-  for (int i=0; i<simResultOverall.getColumnCount(); i++) {
-    String name = simResultOverall.getString(0, i);
-    result.name.add(name);
+  showTrade = true;
+  
+  Table tradeSpaceCSV;
+  String filename = "tradespace.csv";
+  String filefolder = "simulation/result/";
+  
+  File file = new File(dataPath(filefolder + filename));
+  
+  if (!file.exists()) {
+    
+    tradeSpaceCSV = new Table();
+    
+    File folder = new File(dataPath(filefolder));
+    String[] filenames = folder.list();
+    
+    println(filenames.length + " scenarios in simlated trade space");
+    
+    if (filenames.length > 0) {
+      
+      simResultOverall = loadTable("data/" + filefolder + filenames[0]);
+      
+      for (int i=0; i<NUM_FIELDS; i++) {
+        String name = simResultOverall.getString(0, i);
+        tradeSpaceCSV.addColumn(name);
+      }
+      
+    }
+    for (int i=0; i<filenames.length; i++) {
+      
+      simResultOverall = loadTable("data/" + filefolder + filenames[i], "header");
+      
+      TableRow r = tradeSpaceCSV.addRow();
+      for (int j=0; j<NUM_FIELDS; j++) {
+        r.setFloat(j, simResultOverall.getFloat(0, j));
+      }
+      
+      println("Pre-Loading Scenario " + i + " of " + filenames.length);
+      
+    }
+    
+    saveTable(tradeSpaceCSV, "data/" + filefolder + filename);
   }
+  
+  tradeSpaceCSV = loadTable("data/" + filefolder + filename);
+  tradeSpace = new GamePlot();
+  tradeSpace.showPath = false;
+  tradeSpace.col = 50;
+  int numKPI = tradeSpaceCSV.getColumnCount();
+  for (int i=0; i<numKPI; i++) {
+    String name = tradeSpaceCSV.getString(0, i);
+    tradeSpace.name.add(name);
+  }
+  tradeSpace.addResults(tradeSpaceCSV);
+  
 }
 
 void initKeyLog() {
+  
+  showTeams = true;
+  
+  teamSpace = new GamePlot();
+  teamSpace.name = tradeSpace.name;
+  teamSpace.col = #00FF00;
+  
   keyLog = loadTable("data/logs/" + FILE_NAME, "header");
-  int numKPI    = result.name.size();
+  int numKPI    = teamSpace.name.size();
   int numFields = keyLog.getColumnCount();
   int numLogs   = keyLog.getRowCount();
   Table overall;
+  
   for (int i=0; i<numLogs; i++) {
     String action = keyLog.getString(i, "Action");
     if (action.equals("Simulate")) {
@@ -206,9 +266,13 @@ void initKeyLog() {
       for (int j=0; j<numKPI; j++) {
         overall.addColumn();
         float value = keyLog.getFloat(i, numFields - numKPI + j);
+        if (j == 1) value /= 0.000001;
         overall.setFloat(0, j, value);
       }
-      result.addResult(overall);
+      teamSpace.addResult(overall);
     }
   }
+  
+  teamSpace.minRange = tradeSpace.minRange;
+  teamSpace.maxRange = tradeSpace.maxRange;
 }

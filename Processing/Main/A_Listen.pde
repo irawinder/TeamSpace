@@ -29,11 +29,17 @@ void listen() {
   //
   constrainButtons();
   
-  int num = result.name.size();
+  int num = teamSpace.name.size();
   int beg = 0;
   for (int i=0; i<num; i++) {
-    if (bar_right.radios.get(beg+i).value)     result.xIndex = i;
-    if (bar_right.radios.get(beg+i+num).value) result.yIndex = i;
+    if (bar_right.radios.get(beg+i).value) {
+      teamSpace.xIndex = i;
+      tradeSpace.xIndex = i;
+    }
+    if (bar_right.radios.get(beg+i+num).value) {
+      teamSpace.yIndex = i;
+      tradeSpace.yIndex = i;
+    }
   }
   
 }
@@ -86,6 +92,12 @@ void keyPressed() { if (initialized) {
     case 'h':
       showGUI = !showGUI;
       break;
+    case 't':
+      showTeams = !showTeams;
+      break;
+    case 'd':
+      showTrade = !showTrade;
+      break;
     case 'p':
       println("cam.offset.x = " + cam.offset.x);
       println("cam.offset.x = " + cam.offset.x);
@@ -107,7 +119,7 @@ void constrainButtons() {
   
   // Results View: X-AXIS and Y-Axis - Set mutually exclusive radios to false
   //
-  int num = result.name.size();
+  int num = teamSpace.name.size();
   int beg = 0;
   for (int i=0; i<num+1; i+=num) {
     for (int j=0; j<num; j++) {
