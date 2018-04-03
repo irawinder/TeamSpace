@@ -42,6 +42,12 @@ void listen() {
     }
   }
   
+  showTrade = bar_left.radios.get(0).value;
+  showTeams = bar_left.radios.get(1).value;
+  
+  minTime = int(bar_left.sliders.get(0).value);
+  maxTime = int(bar_left.sliders.get(1).value);
+  
 }
 
 void mousePressed() { if (initialized) {
@@ -91,12 +97,6 @@ void keyPressed() { if (initialized) {
       break;
     case 'h':
       showGUI = !showGUI;
-      break;
-    case 't':
-      showTeams = !showTeams;
-      break;
-    case 'd':
-      showTrade = !showTrade;
       break;
     case 'p':
       println("cam.offset.x = " + cam.offset.x);

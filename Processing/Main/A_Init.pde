@@ -34,6 +34,7 @@ Table simConfig, simResultOverall, keyLog;
 //
 GamePlot teamSpace, tradeSpace;
 boolean showTeams, showTrade;
+int MIN_TIME, MAX_TIME, minTime, maxTime;
 
 // Camera Object with built-in GUI for navigation and selection
 //
@@ -154,7 +155,11 @@ void initToolbars() {
   bar_left.title = "TeamSpace IO\n\n";
   bar_left.credit = "Press ' r ' to reset all inputs\n\n";
   bar_left.explanation = "Filename:\n/data/logs/" + FILE_NAME;
-  bar_left.controlY = BAR_Y + bar_left.margin + 2*bar_left.CONTROL_H;
+  bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
+  bar_left.addRadio("Simulated Trade Space", 200, true, '1', false);
+  bar_left.addRadio("Team Space",            200, true, '1', false);
+  bar_left.addSlider("MIN Time Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
+  bar_left.addSlider("MAX Time Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'q', 'w', false);
   
   // Right Toolbar
   bar_right = new Toolbar(BAR_X, BAR_Y + BAR_H + MARGIN , int(1.5*BAR_W), BAR_H, MARGIN);
@@ -177,7 +182,7 @@ void initToolbars() {
     bar_right.radios.get(i).ypos = bar_right.radios.get(i-num).ypos;
   }
   for (int i=0; i<2*num; i++) {
-    bar_right.radios.get(i).xpos += 20;
+    //bar_right.radios.get(i).xpos += 20;
     bar_right.radios.get(i).ypos -= (i%num)*10;
   }
 }
@@ -248,6 +253,12 @@ void initKeyLog() {
   
   showTeams = true;
   
+  MIN_TIME = 0;
+  MAX_TIME = 24*60*60;
+  
+  minTime = MAX_TIME;
+  maxTime = MIN_TIME;
+  
   teamSpace = new GamePlot();
   teamSpace.name = tradeSpace.name;
   teamSpace.col = #00FF00;
@@ -257,8 +268,27 @@ void initKeyLog() {
   int numFields = keyLog.getColumnCount();
   int numLogs   = keyLog.getRowCount();
   Table overall;
+  String timeString;
   
   for (int i=0; i<numLogs; i++) {
+    
+    // Read Time Value (seconds)
+    //
+    timeString = keyLog.getString(i, 0);
+    int seconds, minutes, hours, time;
+    seconds = int(timeString.substring(6,8));
+    minutes = int(timeString.substring(3,5));
+    hours   = int(timeString.substring(0,2));
+    println(seconds, minutes, hours);
+    time = seconds + minutes*60 + hours*60*60;
+    
+    // Update min/max time values
+    //
+    if (time < minTime) minTime = time;
+    if (time > maxTime) maxTime = time;
+    
+    // Read KPI Values and Add them to gamePlot
+    //
     String action = keyLog.getString(i, "Action");
     if (action.equals("Simulate")) {
       overall = new Table();
@@ -269,7 +299,7 @@ void initKeyLog() {
         if (j == 1) value /= 0.000001;
         overall.setFloat(0, j, value);
       }
-      teamSpace.addResult(overall);
+      teamSpace.addResult(overall, time);
     }
   }
   
