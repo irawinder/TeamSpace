@@ -34,7 +34,7 @@ Table simConfig, simResultOverall, keyLog;
 //
 GamePlot teamSpace, tradeSpace;
 AttentionPlot teamAttention;
-boolean showTeams, showTrade;
+boolean showTeams, showTrade, showAttention;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
 // Pixel margin allowed around edge of screen
@@ -43,7 +43,7 @@ int MARGIN;
 
 // Semi-transparent Toolbar for information and sliders
 //
-Toolbar bar_left, bar_right; 
+Toolbar bar_main, bar_A, bar_B; 
 int BAR_X, BAR_Y, BAR_W, BAR_H;
 
 // Processing Font Containers
@@ -114,46 +114,57 @@ void init() {
 void initToolbars() {
   
   // Initialize Toolbar
+  //
   BAR_X = MARGIN;
   BAR_Y = MARGIN;
-  BAR_W = 250;
-  BAR_H = (800 - 3*MARGIN)/2;
+  BAR_W = (width - 3*MARGIN)/2;
+  BAR_H = max( 200, (height - BAR_W - 3*MARGIN)/2 );
   
-  // Left Toolbar
-  bar_left = new Toolbar(BAR_X, BAR_Y, int(1.5*BAR_W), BAR_H, MARGIN);
-  bar_left.title = "TeamSpace IO\n\n";
-  bar_left.credit = "Press ' r ' to reset all inputs\n\n";
-  bar_left.explanation = "Filename:\n/data/logs/" + FILE_NAME;
-  bar_left.controlY = BAR_Y + bar_left.margin + 4*bar_left.CONTROL_H;
-  bar_left.addRadio("Simulated Trade Space", 200, true, '1', false);
-  bar_left.addRadio("Team Space",            200, true, '1', false);
-  bar_left.addSlider("MIN Time Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
-  bar_left.addSlider("MAX Time Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
-  bar_left.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
+  // Main Toolbar
+  //
+  bar_main = new Toolbar(BAR_X, BAR_Y, (BAR_W - MARGIN)/2, BAR_H, MARGIN);
+  bar_main.title = "TeamSpace IO\n\n";
+  bar_main.credit = "Press ' r ' to reset all inputs\n\n";
+  bar_main.explanation = "Filename:\n/data/logs/" + FILE_NAME;
+  bar_main.controlY = BAR_Y + MARGIN + 4*bar_main.CONTROL_H;
   
-  // Right Toolbar
-  bar_right = new Toolbar(BAR_X, BAR_Y + BAR_H + MARGIN , int(1.5*BAR_W), BAR_H, MARGIN);
-  bar_right.title = "";
-  bar_right.credit = "";
-  bar_right.explanation = "";
-  bar_right.controlY = BAR_Y + BAR_H + MARGIN + bar_right.margin + 2*bar_right.CONTROL_H;
+  // A Toolbar
+  //
+  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN, BAR_Y, (BAR_W - MARGIN)/2, BAR_H, MARGIN);
+  bar_A.title = "";
+  bar_A.credit = "";
+  bar_A.explanation = "";
+  bar_A.controlY = BAR_Y + MARGIN + int(0.25*bar_A.CONTROL_H);
+  bar_A.addRadio("Simulated Trade Space", 200, true, '1', false);
+  bar_A.addRadio("Team Space",            200, true, '1', false);
+  bar_A.addSlider("MIN Time Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
+  bar_A.addSlider("MAX Time Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
+  bar_A.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
+  
+  // B Toolbar
+  //
+  bar_B = new Toolbar(BAR_X + BAR_W + MARGIN, BAR_Y, BAR_W, BAR_H, MARGIN);
+  bar_B.title = "";
+  bar_B.credit = "";
+  bar_B.explanation = "";
+  bar_B.controlY = BAR_Y + MARGIN + int(0.25*bar_B.CONTROL_H);
   
   int num = teamSpace.name.size();
   for (int j=0; j<2; j++) {
     for (int i=0; i<num; i++) {
       String name = teamSpace.name.get(i); 
       if (name.length() > 18) name = name.substring(0,18);
-      bar_right.addRadio(name, 200, true,  '1', false);
+      bar_B.addRadio(name, 200, true,  '1', false);
     }
   }
   
   for (int i=num; i<2*num; i++) {
-    bar_right.radios.get(i).xpos = bar_right.barX + bar_right.barW/2;
-    bar_right.radios.get(i).ypos = bar_right.radios.get(i-num).ypos;
+    bar_B.radios.get(i).xpos = bar_B.barX + bar_B.barW/2;
+    bar_B.radios.get(i).ypos = bar_B.radios.get(i-num).ypos;
   }
   for (int i=0; i<2*num; i++) {
-    //bar_right.radios.get(i).xpos += 20;
-    bar_right.radios.get(i).ypos -= (i%num)*10;
+    bar_B.radios.get(i).xpos += 20;
+    bar_B.radios.get(i).ypos -= (i%num)*10;
   }
 }
 
@@ -221,7 +232,8 @@ void initSimResult() {
 
 void initKeyLog() {
   
-  showTeams = true;
+  showTeams     = true;
+  showAttention = true;
   
   MIN_TIME = 0;
   MAX_TIME = 24*60*60;

@@ -29,25 +29,36 @@ void render2D() {
   
   // Draw Margin ToolBar
   //
-  bar_left.draw();
-  bar_right.draw();
+  bar_main.draw();
+  bar_A.draw();
+  bar_B.draw();
   
   // Right-hand Toolbar Titles
   //
-  pushMatrix(); 
-  translate(bar_right.barX + bar_right.margin, bar_right.barY + bar_right.margin);
-  fill(255); 
-  textAlign(LEFT, TOP);
-  text("Compare Configurations (Filter Each Axis):", 0, 0*16);
-  text("X-AXIS:", 0                                        , 2*16);
-  text("Y-AXIS:", 0 + (bar_right.barW-2*bar_right.margin)/2, 2*16);
+  pushMatrix(); translate(bar_B.barX + bar_B.margin, bar_B.barY + bar_B.margin - 8);
+  fill(255); textAlign(RIGHT, TOP);
+  
+    pushMatrix(); rotate(-PI/2);
+    text("X-AXIS", 0, 0);
+    popMatrix();
+    
+    pushMatrix(); translate( (bar_B.barW-2*bar_B.margin)/2, 0); rotate(-PI/2);
+    text("Y-AXIS", 0, 0);
+    popMatrix();
+  
   popMatrix();
   
-  // Plots
+  // Plot Walk Graphs
   //
-  pushMatrix(); translate(bar_left.barX + bar_left.barW + bar_left.margin, bar_left.barY);
-  if (showTrade) tradeSpace.drawPlot(0, 0, width - bar_left.barW - 3*bar_right.margin, height - 2*bar_right.margin, MIN_TIME, MAX_TIME);
-  if (showTeams) teamSpace.drawPlot( 0, 0, width - bar_left.barW - 3*bar_right.margin, height - 2*bar_right.margin, minTime,  maxTime);
+  pushMatrix(); translate(bar_B.barX, BAR_Y + BAR_H + MARGIN);
+  if (showTrade)     tradeSpace.drawPlot(   0, 0, BAR_W, height - 3*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
+  if (showTeams)     teamSpace.drawPlot(    0, 0, BAR_W, height - 3*MARGIN - BAR_H, minTime,  maxTime);
+  popMatrix();
+  
+  // Plot Attention Graphs
+  //
+  pushMatrix(); translate(bar_main.barX, BAR_Y + BAR_H + MARGIN);
+  if (showAttention) teamAttention.drawPlot(0, 0, BAR_W, height - 3*MARGIN - BAR_H, minTime,  maxTime);
   popMatrix();
 }
 

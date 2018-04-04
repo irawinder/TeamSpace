@@ -32,29 +32,30 @@ void listen() {
   int num = teamSpace.name.size();
   int beg = 0;
   for (int i=0; i<num; i++) {
-    if (bar_right.radios.get(beg+i).value) {
+    if (bar_B.radios.get(beg+i).value) {
       teamSpace.xIndex = i;
       tradeSpace.xIndex = i;
     }
-    if (bar_right.radios.get(beg+i+num).value) {
+    if (bar_B.radios.get(beg+i+num).value) {
       teamSpace.yIndex = i;
       tradeSpace.yIndex = i;
     }
   }
   
-  showTrade = bar_left.radios.get(0).value;
-  showTeams = bar_left.radios.get(1).value;
+  showTrade = bar_A.radios.get(0).value;
+  showTeams = bar_A.radios.get(1).value;
   
-  minTime = int(bar_left.sliders.get(0).value);
-  maxTime = int(bar_left.sliders.get(1).value);
+  minTime = int(bar_A.sliders.get(0).value);
+  maxTime = int(bar_A.sliders.get(1).value);
   
 }
 
 void mousePressed() { if (initialized) { 
   loop();
   
-  bar_left.pressed();
-  bar_right.pressed();
+  bar_main.pressed();
+  bar_A.pressed();
+  bar_B.pressed();
   
 } }
 
@@ -67,8 +68,9 @@ void mouseClicked() { if (initialized) {
 void mouseReleased() { if (initialized) { 
   loop();
   
-  bar_left.released();
-  bar_right.released();
+  bar_main.released();
+  bar_A.released();
+  bar_B.released();
   
 } }
 
@@ -85,13 +87,15 @@ void mouseDragged() { if (initialized) {
 void keyPressed() { if (initialized) { 
   loop();
     
-  bar_left.pressed();
-  bar_right.pressed();
+  bar_main.pressed();
+  bar_A.pressed();
+  bar_B.pressed();
   
   switch(key) {
     case 'r':
-      bar_left.restoreDefault();
-      bar_right.restoreDefault();
+      bar_main.restoreDefault();
+      bar_A.restoreDefault();
+      bar_B.restoreDefault();
       break;
   }
   
@@ -100,8 +104,9 @@ void keyPressed() { if (initialized) {
 void keyReleased() { if (initialized) { 
   loop();
     
-    bar_left.released();
-    bar_right.released();
+    bar_main.released();
+    bar_A.released();
+    bar_B.released();
 
 } }
 
@@ -113,9 +118,9 @@ void constrainButtons() {
   int beg = 0;
   for (int i=0; i<num+1; i+=num) {
     for (int j=0; j<num; j++) {
-      if(bar_right.radios.get(beg+i+j).hover() && bar_right.radios.get(beg+i+j).value) {
-        for (int k=0; k<num; k++) bar_right.radios.get(beg+i+k).value = false;
-        bar_right.radios.get(beg+i+j).value = true;
+      if(bar_B.radios.get(beg+i+j).hover() && bar_B.radios.get(beg+i+j).value) {
+        for (int k=0; k<num; k++) bar_B.radios.get(beg+i+k).value = false;
+        bar_B.radios.get(beg+i+j).value = true;
       }
     }
   }
@@ -125,12 +130,12 @@ void constrainButtons() {
   for (int i=0; i<num+1; i+=num) {
     boolean found = false;
     for (int j=0; j<num; j++) {
-      if(bar_right.radios.get(beg+i+j).value) {
-        for (int k=0; k<num; k++) bar_right.radios.get(beg+i+k).value = false;
-        bar_right.radios.get(beg+i+j).value = true;
+      if(bar_B.radios.get(beg+i+j).value) {
+        for (int k=0; k<num; k++) bar_B.radios.get(beg+i+k).value = false;
+        bar_B.radios.get(beg+i+j).value = true;
         found = true;
       }
     }
-    if (!found) bar_right.radios.get(beg+i).value = true;
+    if (!found) bar_B.radios.get(beg+i).value = true;
   }
 }

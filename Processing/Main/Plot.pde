@@ -40,12 +40,12 @@ class GamePlot {
   }
 
   void drawPlot(int x, int y, int w, int h, int minTime, int maxTime) {
+    
+    int MARGIN = 20;
+    pushMatrix(); translate(x+MARGIN, y);
+    
     if (showAxes) {
-      int MARGIN = 20;
-      pushMatrix(); 
-      translate(x+MARGIN, y);
-      stroke(255); 
-      noFill();
+      stroke(255); strokeWeight(1); noFill();
       rect(0, 0, w-MARGIN, h);
       fill(255);
   
@@ -267,15 +267,16 @@ class AttentionPlot {
   }
   
   void drawPlot(int x, int y, int w, int h, int minTime, int maxTime) {
+    int MARGIN = 20;
+    pushMatrix(); translate(x+MARGIN, y);
+    
     if (showAxes) {
-      int MARGIN = 20;
-      pushMatrix(); 
-      translate(x+MARGIN, y);
-      stroke(255); 
-      noFill();
+      stroke(255); strokeWeight(1); noFill();
       rect(0, 0, w-MARGIN, h);
       fill(255);
     }
+    
+    popMatrix();
   
     //  // Draw Y Axis Lables
     //  //
