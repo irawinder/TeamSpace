@@ -109,6 +109,22 @@ void keyPressed() { if (initialized) {
       break;
   }
   
+  if (key == CODED) {
+    if (keyCode == UP) {
+      
+    } else if (keyCode == DOWN) {
+      
+    } else if (keyCode == LEFT) {
+      bar_A.sliders.get(0).value -= 60;
+      bar_A.sliders.get(1).value -= 60;
+      bar_A.sliders.get(2).value -= 60;
+    } else if (keyCode == RIGHT) {
+      bar_A.sliders.get(0).value += 60;
+      bar_A.sliders.get(1).value += 60;
+      bar_A.sliders.get(2).value += 60;
+    } 
+  }
+  
 } }
 
 void keyReleased() { if (initialized) { 
@@ -146,6 +162,6 @@ void constrainButtons() {
         found = true;
       }
     }
-    if (!found) bar_B.radios.get(beg+i).value = true;
+    if (!found) bar_B.radios.get(beg+i+i/num).value = true;
   }
 }

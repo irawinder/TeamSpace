@@ -34,6 +34,7 @@ Table simConfig, simResultOverall, keyLog;
 //
 GamePlot teamSpace, tradeSpace;
 AttentionPlot teamAttention;
+ChangePlot teamChange;
 boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
@@ -138,9 +139,9 @@ void initToolbars() {
   bar_A.addSlider("Time - MIN Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
   bar_A.addSlider("Time - MAX Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
   bar_A.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
-  bar_A.addRadio("Action: 'Simulate'", 200, true, '1', false);
+  bar_A.addRadio("Action: 'Simulate' Button Pressed", 200, true, '1', false);
   bar_A.radios.get(0).col = #FFFF00;
-  bar_A.addRadio("Other Actions",      200, true, '1', false);
+  bar_A.addRadio("Other Actions (Mouse Pressed, Key Pressed, etc)", 200, false, '1', false);
   
   // B Toolbar
   //
@@ -158,7 +159,7 @@ void initToolbars() {
     for (int i=0; i<num; i++) {
       String name = teamSpace.name.get(i); 
       if (name.length() > 18) name = name.substring(0,18);
-      bar_B.addRadio(name, 200, true,  '1', false);
+      bar_B.addRadio(name, 200, false,  '1', false);
     }
   }
   
@@ -249,7 +250,8 @@ void initKeyLog() {
   
   teamSpace = new GamePlot();
   teamSpace.name = tradeSpace.name;
-  teamSpace.col = #00FF00;
+  teamSpace.col = #FF00FF;
+  teamSpace.highlight = true;
   
   teamAttention = new AttentionPlot();
   teamAttention.name.add("Fuel Efficiency");
@@ -259,6 +261,20 @@ void initKeyLog() {
   teamAttention.name.add("SOx Emission");
   teamAttention.name.add("Waiting Time");
   teamAttention.name.add("Initial Cost");
+  teamAttention.col = #FF00FF;
+  
+  teamChange = new ChangePlot();
+  keyLog = loadTable("data/logs/" + FILE_NAME);
+  int begin = 0;
+  int end = keyLog.getColumnCount()-1;
+  for (int i=0; i<keyLog.getColumnCount(); i++) {
+    if (keyLog.getString(0, i).equals("Action")) begin = i+1;
+    if (keyLog.getString(0, i).equals("X_AXIS")) end   = i-1;
+  }
+  for (int i=begin; i<=end; i++) {
+    teamChange.name.add(keyLog.getString(0, i));
+  }
+  teamChange.col = #FF00FF;
   
   keyLog = loadTable("data/logs/" + FILE_NAME, "header");
   int numKPI    = teamSpace.name.size();
@@ -303,6 +319,20 @@ void initKeyLog() {
     String x_attention = keyLog.getString(i, "X_AXIS");
     String y_attention = keyLog.getString(i, "Y_AXIS");
     teamAttention.addResult(time, action, x_attention, y_attention);
+    
+    // Read Change Values and Add them to ChangePlot
+    //
+    ArrayList<String> before = new ArrayList<String>();
+    ArrayList<String> after  = new ArrayList<String>();
+    for (int j=begin; j<=end; j++) {
+      if (i == 0) {
+        before.add(keyLog.getString(i, j));
+      } else {
+        before.add(keyLog.getString(i-1, j));
+      }
+      after.add(keyLog.getString(i, j));
+    }
+    teamChange.addResult(time, action, before, after);
     
   }
   

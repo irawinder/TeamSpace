@@ -7,6 +7,7 @@ class GamePlot {
 
   boolean showPath;
   boolean showAxes;
+  boolean highlight;
 
   GamePlot() {
     game = new ArrayList<Ilities>();
@@ -17,6 +18,7 @@ class GamePlot {
     yIndex = 0;
     showPath = true;
     showAxes = true;
+    highlight = false;
     col = 255;
   }
 
@@ -119,33 +121,32 @@ class GamePlot {
     //
     Ilities last = new Ilities();
     for (int i=0; i<game.size(); i++) {
-      if (inBounds(i, minTime, maxTime)) {
-        
-        float alpha;
-        if (showPath) {
-          //alpha = 255.0*float(i+1)/game.size();
-          alpha = 100;
-        } else {
-          alpha = 255;
-        }
-        float x_plot = map(game.get(i).value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
-        float y_plot = map(game.get(i).value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
-        float diameter = 10;
-        noStroke(); 
-        if (i == game.size()-1 && showPath) {
-          diameter *= 2;
-          stroke(255);
-        }
-        fill(col, 255); ellipse(x_plot, h - y_plot, diameter, diameter);
-  
-        if (i >= 1 && showPath) {
-          float x_plot_last = map(last.value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
-          float y_plot_last = map(last.value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
-          stroke(col, alpha); strokeWeight(3); 
-          line(x_plot_last, h - y_plot_last, x_plot, h - y_plot);
-        }
-        
+      float alphaScale = 1.0;
+      float x_plot = map(game.get(i).value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
+      float y_plot = map(game.get(i).value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
+      float diameter = 10;
+      float alpha;
+      if (showPath) {
+        //alpha = 255.0*float(i+1)/game.size();
+        alpha = 100;
+      } else {
+        alpha = 255;
       }
+      if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+      
+      if (i >= 1 && showPath) {
+        float x_plot_last = map(last.value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
+        float y_plot_last = map(last.value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
+        stroke(col, alphaScale*alpha); strokeWeight(3); 
+        line(x_plot_last, h - y_plot_last, x_plot, h - y_plot);
+      }
+      
+      noStroke(); fill(col, alphaScale*255); 
+      if (highlight) {
+        stroke(#FFFF00, alphaScale*255); 
+        strokeWeight(1); 
+      }
+      ellipse(x_plot, h - y_plot, diameter, diameter);
 
       last = game.get(i);
     }
@@ -154,12 +155,12 @@ class GamePlot {
     //
     hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
     for (int i=0; i<game.size(); i++) {
-      if (inBounds(i, minTime, maxTime)) {
-        float x_plot = map(game.get(i).value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
-        float y_plot = map(game.get(i).value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
-        if (showPath) {
-          fill(255); stroke(255); text(i+1, x_plot + 16, h - y_plot - 16);
-        }
+      float alphaScale = 1.0;
+      float x_plot = map(game.get(i).value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
+      float y_plot = map(game.get(i).value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
+      if (showPath) {
+        if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+        fill(255, alphaScale*255); stroke(255, alphaScale*255); text(i+1, x_plot + 24, h - y_plot - 16);
       }
     }
     popMatrix();
@@ -236,6 +237,7 @@ class AttentionPlot {
   ArrayList<String> action;
   
   boolean showAxes;
+  int col;
   
   AttentionPlot() {
     
@@ -246,6 +248,7 @@ class AttentionPlot {
     attention = new ArrayList<ArrayList<Boolean>>();
     
     showAxes = true;
+    col = 255;
   }
   
   AttentionPlot(ArrayList<String> name) {
@@ -267,7 +270,7 @@ class AttentionPlot {
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct) {
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct ) {
     
     // Vertical spacing between elements
     //
@@ -275,6 +278,14 @@ class AttentionPlot {
     
     pushMatrix(); translate(x, y);
     
+        // Draw Graph Grid
+        //
+        noFill(); stroke(25); strokeWeight(1);
+        for (int i=0; i<name.size(); i++) {
+          int y_pos = spacer/2 + i*spacer;
+          line(0, y_pos, w, y_pos); 
+        }
+        
         // Show Mouse click and release actions
         //
         strokeWeight(1);
@@ -293,23 +304,26 @@ class AttentionPlot {
         
         // Show Mouse Simulate actions
         //
-        strokeWeight(1);
+        strokeWeight(1); textAlign(CENTER, BOTTOM); 
+        int simCounter = 0;
         for (int i=0; i<action.size(); i++) {
           String a             = action.get(i);
           int t                = timeStamp.get(i);
-          if (t >= minTime && t <= maxTime) {
-            int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
-            fill(50);
-            if (a.equals("Simulate") && showSimAct) {
+          int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+          fill(50);
+          if (a.equals("Simulate") && showSimAct) {
+            simCounter++;
+            if (t >= minTime && t <= maxTime) {
               stroke(#FFFF00, 150);
               line(x_i, 0, x_i, h);
-            } 
+              fill(255); text(simCounter, x_i, - 4);
+            }
           }
         }
         
         // Plot Attention
         //
-        strokeWeight(10); stroke(#FF00FF); noFill();
+        strokeWeight(10); stroke(col); noFill();
         for (int i=1; i<action.size(); i++) {
           String a             = action.get(i);
           int t_i              = timeStamp.get(i-1);
@@ -326,6 +340,164 @@ class AttentionPlot {
               if (viewing) line(x_i, spacer/2 + j*spacer, x_f, spacer/2 + j*spacer);
             }
             
+          }
+        }
+          
+        // Show Primary Time Notch
+        //
+        int x_t = int( w * float(time - minTime) / (maxTime - minTime) );
+        stroke(255); strokeWeight(2);
+        line(x_t, -10, x_t, 0);
+        line(x_t, h, x_t, h + 4);
+        stroke(255); strokeWeight(1);
+        line(x_t, 0, x_t, h);
+        int hour     = time/(60*60);
+        int minute   = (time - hour*60*60)/60;
+        int second = (time - hour*60*60 - minute*60);
+        fill(255); textAlign(CENTER, TOP);
+        text(hour + ":" + minute + ":" + second, x_t, h + 8);
+        
+        // Show min/max time notches
+        //
+        stroke(255); strokeWeight(1);
+        x_t = int( w * float(minTime - minTime) / (maxTime - minTime) );
+        line(x_t, -5, x_t, h + 5);
+        x_t = int( w * float(maxTime - minTime) / (maxTime - minTime) );
+        line(x_t, -5, x_t, h + 5);
+        
+        if (showAxes) {
+          
+          // Draw Border
+          //
+          stroke(255); strokeWeight(1); noFill();
+          rect(0, 0, w, h);
+          fill(255);
+          
+          // Draw Y Axis Lables
+          //
+          textAlign(RIGHT, CENTER);
+          for (int i=0; i<name.size(); i++) {
+            String n = name.get(i);
+            text(n, - 8, spacer/2 + i*spacer);
+          }
+        }
+    
+    popMatrix();
+    
+  }
+}
+
+class ChangePlot {
+  
+  ArrayList<String> name;
+  
+  ArrayList<ArrayList<Boolean>> change;
+  ArrayList<Integer> timeStamp;
+  ArrayList<String> action;
+  
+  boolean showAxes;
+  int col;
+  
+  ChangePlot() {
+    
+    name      = new ArrayList<String>();
+    
+    action    = new ArrayList<String>();
+    timeStamp = new ArrayList<Integer>();
+    change    = new ArrayList<ArrayList<Boolean>>();
+    
+    showAxes = true;
+    col = 255;
+  }
+  
+  ChangePlot(ArrayList<String> name) {
+    super();
+    this.name = name;
+  }
+  
+  void addResult(int t, String a, ArrayList<String> before, ArrayList<String> after) {
+    ArrayList<Boolean> b = new ArrayList<Boolean>();
+    for (int i=0; i<name.size(); i++) {
+      
+      if ( change.size() < 2 ) {
+        b.add(false);
+      } else {
+        if (before.get(i).equals(after.get(i))) {
+          b.add(false);
+        } else {
+          b.add(true);
+        }
+      }
+    }
+    change.add(b);
+    timeStamp.add(t);
+    action.add(a);
+  }
+  
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct) {
+    
+    // Vertical spacing between elements
+    //
+    int spacer = h/name.size();
+    
+    pushMatrix(); translate(x, y);
+        
+        // Draw Graph Grid
+        //
+        noFill(); stroke(25); strokeWeight(1);
+        for (int i=0; i<name.size(); i++) {
+          int y_pos = spacer/2 + i*spacer;
+          line(0, y_pos, w, y_pos); 
+        }
+        
+        // Show Mouse click and release actions
+        //
+        strokeWeight(1);
+        for (int i=0; i<action.size(); i++) {
+          String a             = action.get(i);
+          int t                = timeStamp.get(i);
+          if (t >= minTime && t <= maxTime) {
+            int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+            fill(50);
+            if (!a.equals("Simulate") && showOtherAct) {
+              stroke(50, 150);
+              line(x_i, 0, x_i, h);
+            } 
+          }
+        }
+        
+        // Show Mouse Simulate actions
+        //
+        strokeWeight(1); textAlign(CENTER, BOTTOM); 
+        int simCounter = 0;
+        for (int i=0; i<action.size(); i++) {
+          String a             = action.get(i);
+          int t                = timeStamp.get(i);
+          int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+          fill(50);
+          if (a.equals("Simulate") && showSimAct) {
+            simCounter++;
+            if (t >= minTime && t <= maxTime) {
+              stroke(#FFFF00, 150);
+              line(x_i, 0, x_i, h);
+              fill(255); text(simCounter, x_i, - 4);
+            }
+          }
+        }
+        
+        // Plot Change
+        //
+        hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
+        fill(col); noStroke();
+        for (int i=0; i<action.size(); i++) {
+          int t_i              = timeStamp.get(i);
+          ArrayList<Boolean> b = change.get(i);  
+          if (t_i >= minTime && t_i <= maxTime) {
+            int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+            for (int j=0; j<b.size(); j++) {
+              boolean changed = b.get(j);
+              if (changed) ellipse(x_i, spacer/2 + j*spacer, 5, 5);
+            }
           }
         }
           

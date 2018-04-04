@@ -60,7 +60,16 @@ void render2D() {
   pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN);
   if (showAttention) {
     int time = int(bar_A.sliders.get(2).value);
-    teamAttention.drawPlot(0, 0, bar_A.sliders.get(0).len, 200, minTime,  maxTime, time, showSimAct, showOtherAct);            
+    teamAttention.drawPlot(0, 0, bar_A.sliders.get(0).len, 125, minTime,  maxTime, time, showSimAct, showOtherAct);  
+  }
+  popMatrix();
+  
+  // Plot Change Graphs
+  //
+  pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN);
+  if (showAttention) {
+    int time = int(bar_A.sliders.get(2).value); 
+    teamChange.drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN), minTime,  maxTime, time, showSimAct, showOtherAct);  
   }
   popMatrix();
 }
