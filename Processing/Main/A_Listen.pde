@@ -30,7 +30,7 @@ void listen() {
   constrainButtons();
   
   int num = teamSpace.name.size();
-  int beg = 0;
+  int beg = 2;
   for (int i=0; i<num; i++) {
     if (bar_B.radios.get(beg+i).value) {
       teamSpace.xIndex = i;
@@ -42,11 +42,21 @@ void listen() {
     }
   }
   
-  showTrade = bar_A.radios.get(0).value;
-  showTeams = bar_A.radios.get(1).value;
+  showTrade    = bar_B.radios.get(0).value;
+  showTeams    = bar_B.radios.get(1).value;
+  showSimAct   = bar_A.radios.get(0).value;
+  showOtherAct = bar_A.radios.get(1).value;
   
   minTime = int(bar_A.sliders.get(0).value);
   maxTime = int(bar_A.sliders.get(1).value);
+  
+  bar_A.sliders.get(2).valMin = minTime;
+  bar_A.sliders.get(2).valMax = maxTime;
+  
+  ControlSlider sm = bar_A.sliders.get(0);
+  ControlSlider lg = bar_A.sliders.get(1);
+  if (sm.value >= lg.value && sm.isDragged) lg.value = sm.value;
+  if (lg.value <= sm.value && lg.isDragged) sm.value = lg.value;
   
 }
 
@@ -115,7 +125,7 @@ void constrainButtons() {
   // Results View: X-AXIS and Y-Axis - Set mutually exclusive radios to false
   //
   int num = teamSpace.name.size();
-  int beg = 0;
+  int beg = 2;
   for (int i=0; i<num+1; i+=num) {
     for (int j=0; j<num; j++) {
       if(bar_B.radios.get(beg+i+j).hover() && bar_B.radios.get(beg+i+j).value) {

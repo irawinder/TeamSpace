@@ -229,11 +229,11 @@ class Ilities {
 
 class AttentionPlot {
   
-  ArrayList<String>    name;
+  ArrayList<String> name;
   
   ArrayList<ArrayList<Boolean>> attention;
-  ArrayList<Integer>   timeStamp;
-  ArrayList<String>    action;
+  ArrayList<Integer> timeStamp;
+  ArrayList<String> action;
   
   boolean showAxes;
   
@@ -241,9 +241,9 @@ class AttentionPlot {
     
     name      = new ArrayList<String>();
     
-    attention = new ArrayList<ArrayList<Boolean>>();
-    timeStamp = new ArrayList<Integer>();
     action    = new ArrayList<String>();
+    timeStamp = new ArrayList<Integer>();
+    attention = new ArrayList<ArrayList<Boolean>>();
     
     showAxes = true;
   }
@@ -253,7 +253,7 @@ class AttentionPlot {
     this.name = name;
   }
   
-  void addResult(int timeStamp, String action, String x, String y) {
+  void addResult(int t, String a, String x, String y) {
     ArrayList<Boolean> b = new ArrayList<Boolean>();
     for (String n: name) {
       if ( n.equals(x) || n.equals(y) ) {
@@ -261,91 +261,114 @@ class AttentionPlot {
       } else {
         b.add(false);
       }
-      this.timeStamp.add(timeStamp);
-      this.action.add(action);
     }
+    attention.add(b);
+    timeStamp.add(t);
+    action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime) {
-    int MARGIN = 20;
-    pushMatrix(); translate(x+MARGIN, y);
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct) {
     
-    if (showAxes) {
-      stroke(255); strokeWeight(1); noFill();
-      rect(0, 0, w-MARGIN, h);
-      fill(255);
-    }
+    // Vertical spacing between elements
+    //
+    int spacer = h/name.size();
+    
+    pushMatrix(); translate(x, y);
+    
+        // Show Mouse click and release actions
+        //
+        strokeWeight(1);
+        for (int i=0; i<action.size(); i++) {
+          String a             = action.get(i);
+          int t                = timeStamp.get(i);
+          if (t >= minTime && t <= maxTime) {
+            int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+            fill(50);
+            if (!a.equals("Simulate") && showOtherAct) {
+              stroke(50, 150);
+              line(x_i, 0, x_i, h);
+            } 
+          }
+        }
+        
+        // Show Mouse Simulate actions
+        //
+        strokeWeight(1);
+        for (int i=0; i<action.size(); i++) {
+          String a             = action.get(i);
+          int t                = timeStamp.get(i);
+          if (t >= minTime && t <= maxTime) {
+            int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+            fill(50);
+            if (a.equals("Simulate") && showSimAct) {
+              stroke(#FFFF00, 150);
+              line(x_i, 0, x_i, h);
+            } 
+          }
+        }
+        
+        // Plot Attention
+        //
+        strokeWeight(10); stroke(#FF00FF); noFill();
+        for (int i=1; i<action.size(); i++) {
+          String a             = action.get(i);
+          int t_i              = timeStamp.get(i-1);
+          int t_f              = timeStamp.get(i);
+          ArrayList<Boolean> b = attention.get(i);  
+          
+          if (t_i >= minTime && t_f <= maxTime) {
+            
+            int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+            int x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
+            
+            for (int j=0; j<b.size(); j++) {
+              boolean viewing = b.get(j);
+              if (viewing) line(x_i, spacer/2 + j*spacer, x_f, spacer/2 + j*spacer);
+            }
+            
+          }
+        }
+          
+        // Show Primary Time Notch
+        //
+        int x_t = int( w * float(time - minTime) / (maxTime - minTime) );
+        stroke(255); strokeWeight(2);
+        line(x_t, -10, x_t, 0);
+        line(x_t, h, x_t, h + 4);
+        stroke(255); strokeWeight(1);
+        line(x_t, 0, x_t, h);
+        int hour     = time/(60*60);
+        int minute   = (time - hour*60*60)/60;
+        int second = (time - hour*60*60 - minute*60);
+        fill(255); textAlign(CENTER, TOP);
+        text(hour + ":" + minute + ":" + second, x_t, h + 8);
+        
+        // Show min/max time notches
+        //
+        stroke(255); strokeWeight(1);
+        x_t = int( w * float(minTime - minTime) / (maxTime - minTime) );
+        line(x_t, -5, x_t, h + 5);
+        x_t = int( w * float(maxTime - minTime) / (maxTime - minTime) );
+        line(x_t, -5, x_t, h + 5);
+        
+        if (showAxes) {
+          
+          // Draw Border
+          //
+          stroke(255); strokeWeight(1); noFill();
+          rect(0, 0, w, h);
+          fill(255);
+          
+          // Draw Y Axis Lables
+          //
+          textAlign(RIGHT, CENTER);
+          for (int i=0; i<name.size(); i++) {
+            String n = name.get(i);
+            text(n, - 8, spacer/2 + i*spacer);
+          }
+        }
     
     popMatrix();
-  
-    //  // Draw Y Axis Lables
-    //  //
-    //  String nY = name.get(yIndex); 
-    //  if (nY.length() > 18) nY = nY.substring(0, 18);
-    //  pushMatrix(); 
-    //  translate(0, h/2); 
-    //  rotate(-PI/2);
-    //  textAlign(CENTER, BOTTOM); 
-    //  text(nY, 0, -3);
-    //  popMatrix();
-  
-    //  if (game.size() > 0) {
-  
-    //    // Draw Y Axis Min Range
-    //    //
-    //    nY = "" + minRange.get(yIndex); 
-    //    pushMatrix(); 
-    //    translate(0, h); 
-    //    rotate(-PI/2);
-    //    textAlign(LEFT, BOTTOM); 
-    //    text(nY, 0, -3);
-    //    popMatrix();
-  
-    //    // Draw Y Axis Max Range
-    //    //
-    //    nY = "" + maxRange.get(yIndex); 
-    //    pushMatrix(); 
-    //    translate(0, 0); 
-    //    rotate(-PI/2);
-    //    textAlign(RIGHT, BOTTOM); 
-    //    text(nY, 0, -3);
-    //    popMatrix();
-    //  }
-  
-    //  // Draw X Axis Lable
-    //  //
-    //  String nX = name.get(xIndex); 
-    //  if (nX.length() > 18) nX = nX.substring(0, 18);
-    //  pushMatrix(); 
-    //  translate(w/2+MARGIN/2, h+3);
-    //  textAlign(CENTER, TOP); 
-    //  text(nX, 0, 0);
-    //  popMatrix();
-  
-    //  if (game.size() > 0) {
-  
-    //    // Draw X Axis Min Range
-    //    //
-    //    nX = "" + minRange.get(xIndex); 
-    //    pushMatrix(); 
-    //    translate(0, h+3);
-    //    textAlign(LEFT, TOP); 
-    //    text(nX, 0, 0);
-    //    popMatrix();
-  
-    //    // Draw X Axis Max Range
-    //    //
-    //    nX = "" + maxRange.get(xIndex);
-    //    pushMatrix(); 
-    //    translate(w-MARGIN, h+3);
-    //    textAlign(RIGHT, TOP); 
-    //    text(nX, 0, 0);
-    //    popMatrix();
-    //  }
-    //}
-    
-    // Plot Attention Bars
-    //
     
   }
 }

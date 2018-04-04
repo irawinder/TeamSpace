@@ -35,14 +35,14 @@ void render2D() {
   
   // Right-hand Toolbar Titles
   //
-  pushMatrix(); translate(bar_B.barX + bar_B.margin, bar_B.barY + bar_B.margin - 8);
+  pushMatrix(); translate(bar_B.barX + bar_B.margin + bar_B.barW/3, bar_B.barY + bar_B.margin - 8);
   fill(255); textAlign(RIGHT, TOP);
   
     pushMatrix(); rotate(-PI/2);
     text("X-AXIS", 0, 0);
     popMatrix();
     
-    pushMatrix(); translate( (bar_B.barW-2*bar_B.margin)/2, 0); rotate(-PI/2);
+    pushMatrix(); translate( (bar_B.barW/3-bar_B.margin), 0); rotate(-PI/2);
     text("Y-AXIS", 0, 0);
     popMatrix();
   
@@ -51,14 +51,17 @@ void render2D() {
   // Plot Walk Graphs
   //
   pushMatrix(); translate(bar_B.barX, BAR_Y + BAR_H + MARGIN);
-  if (showTrade)     tradeSpace.drawPlot(   0, 0, BAR_W, height - 3*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
-  if (showTeams)     teamSpace.drawPlot(    0, 0, BAR_W, height - 3*MARGIN - BAR_H, minTime,  maxTime);
+  if (showTrade)     tradeSpace.drawPlot(   0, 0, BAR_W, height - 4*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
+  if (showTeams)     teamSpace.drawPlot(    0, 0, BAR_W, height - 4*MARGIN - BAR_H, minTime,  maxTime);
   popMatrix();
   
   // Plot Attention Graphs
   //
-  pushMatrix(); translate(bar_main.barX, BAR_Y + BAR_H + MARGIN);
-  if (showAttention) teamAttention.drawPlot(0, 0, BAR_W, height - 3*MARGIN - BAR_H, minTime,  maxTime);
+  pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN);
+  if (showAttention) {
+    int time = int(bar_A.sliders.get(2).value);
+    teamAttention.drawPlot(0, 0, bar_A.sliders.get(0).len, 200, minTime,  maxTime, time, showSimAct, showOtherAct);            
+  }
   popMatrix();
 }
 

@@ -34,7 +34,7 @@ Table simConfig, simResultOverall, keyLog;
 //
 GamePlot teamSpace, tradeSpace;
 AttentionPlot teamAttention;
-boolean showTeams, showTrade, showAttention;
+boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
 // Pixel margin allowed around edge of screen
@@ -122,24 +122,25 @@ void initToolbars() {
   
   // Main Toolbar
   //
-  bar_main = new Toolbar(BAR_X, BAR_Y, (BAR_W - MARGIN)/2, BAR_H, MARGIN);
+  bar_main = new Toolbar(BAR_X, BAR_Y, 1*BAR_W/3 - MARGIN/2, BAR_H, MARGIN);
   bar_main.title = "TeamSpace IO\n\n";
-  bar_main.credit = "Press ' r ' to reset all inputs\n\n";
-  bar_main.explanation = "Filename:\n/data/logs/" + FILE_NAME;
+  bar_main.credit = "Press ' r ' to reset\n\n";
+  bar_main.explanation = "Filename:\n/logs/" + FILE_NAME;
   bar_main.controlY = BAR_Y + MARGIN + 4*bar_main.CONTROL_H;
   
   // A Toolbar
   //
-  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN, BAR_Y, (BAR_W - MARGIN)/2, BAR_H, MARGIN);
+  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN, BAR_Y, 2*BAR_W/3 - MARGIN/2, BAR_H, MARGIN);
   bar_A.title = "";
   bar_A.credit = "";
   bar_A.explanation = "";
   bar_A.controlY = BAR_Y + MARGIN + int(0.25*bar_A.CONTROL_H);
-  bar_A.addRadio("Simulated Trade Space", 200, true, '1', false);
-  bar_A.addRadio("Team Space",            200, true, '1', false);
-  bar_A.addSlider("MIN Time Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
-  bar_A.addSlider("MAX Time Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
+  bar_A.addSlider("Time - MIN Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
+  bar_A.addSlider("Time - MAX Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
   bar_A.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
+  bar_A.addRadio("Action: 'Simulate'", 200, true, '1', false);
+  bar_A.radios.get(0).col = #FFFF00;
+  bar_A.addRadio("Other Actions",      200, true, '1', false);
   
   // B Toolbar
   //
@@ -148,6 +149,9 @@ void initToolbars() {
   bar_B.credit = "";
   bar_B.explanation = "";
   bar_B.controlY = BAR_Y + MARGIN + int(0.25*bar_B.CONTROL_H);
+  
+  bar_B.addRadio("Simulated Trade Space", 200, true, '1', false);
+  bar_B.addRadio("Team Space",            200, true, '1', false);
   
   int num = teamSpace.name.size();
   for (int j=0; j<2; j++) {
@@ -158,13 +162,13 @@ void initToolbars() {
     }
   }
   
-  for (int i=num; i<2*num; i++) {
-    bar_B.radios.get(i).xpos = bar_B.barX + bar_B.barW/2;
+  for (int i=num+2; i<2*num+2; i++) {
+    bar_B.radios.get(i).xpos = bar_B.barX + bar_B.barW/3;
     bar_B.radios.get(i).ypos = bar_B.radios.get(i-num).ypos;
   }
-  for (int i=0; i<2*num; i++) {
-    bar_B.radios.get(i).xpos += 20;
-    bar_B.radios.get(i).ypos -= (i%num)*10;
+  for (int i=0+2; i<2*num+2; i++) {
+    bar_B.radios.get(i).xpos += 20  + bar_B.barW/3;
+    bar_B.radios.get(i).ypos -= ((i-2)%num)*10 + 2*bar_B.CONTROL_H;
   }
 }
 
@@ -234,6 +238,8 @@ void initKeyLog() {
   
   showTeams     = true;
   showAttention = true;
+  showSimAct    = true;
+  showOtherAct  = true;
   
   MIN_TIME = 0;
   MAX_TIME = 24*60*60;
