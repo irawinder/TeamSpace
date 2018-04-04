@@ -52,12 +52,15 @@ void draw() {
     
     // A_Listen.pde - Updates settings and values for this frame
     //
-    if (showGUI) listen();
+    listen();
     
     // A_Render.pde - Renders current frame of visualization
     //
     background(0);
-    //render3D();
-    if (showGUI) render2D();
+    render2D();
+    
+    // Only loop when user input is detected to save memory
+    //
+    noLoop();
   }
 }

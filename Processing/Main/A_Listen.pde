@@ -50,69 +50,59 @@ void listen() {
   
 }
 
-void mousePressed() { if (initialized) {
+void mousePressed() { if (initialized) { 
+  loop();
   
-  cam.pressed();
   bar_left.pressed();
   bar_right.pressed();
   
 } }
 
-void mouseClicked() { if (initialized) {
-  
+void mouseClicked() { if (initialized) { 
+  loop();
   
   
 } }
 
-void mouseReleased() { if (initialized) {
+void mouseReleased() { if (initialized) { 
+  loop();
   
   bar_left.released();
   bar_right.released();
-  cam.moved();
   
 } }
 
-void mouseMoved() { if (initialized) {
-  
-  cam.moved();
+void mouseMoved() { if (initialized) { 
+  loop();
   
 } }
 
-void keyPressed() { if (initialized) {
+void mouseDragged() { if (initialized) { 
+  loop();
+  
+} }
+
+void keyPressed() { if (initialized) { 
+  loop();
     
-  cam.moved();
   bar_left.pressed();
   bar_right.pressed();
   
   switch(key) {
-    case 'f':
-      cam.showFrameRate = !cam.showFrameRate;
-      break;
-    case 'c':
-      cam.reset();
-      break;
     case 'r':
       bar_left.restoreDefault();
       bar_right.restoreDefault();
-      break;
-    case 'h':
-      showGUI = !showGUI;
-      break;
-    case 'p':
-      println("cam.offset.x = " + cam.offset.x);
-      println("cam.offset.x = " + cam.offset.x);
-      println("cam.zoom = "     + cam.zoom);
-      println("cam.rotation = " + cam.rotation);
       break;
   }
   
 } }
 
-void keyReleased() { if (initialized) {
+void keyReleased() { if (initialized) { 
+  loop();
     
     bar_left.released();
     bar_right.released();
-  
+
 } }
 
 void constrainButtons() {

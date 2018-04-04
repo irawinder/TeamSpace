@@ -21,48 +21,11 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Begin Drawing 3D Elements
-//
-void render3D() {
-  
-  // Update camera position settings for a number of frames after key updates
-  //
-  if (cam.moveTimer > 0) {
-    cam.moved();
-  }
-  
-  // Draw and Calculate 3D Graphics 
-  //
-  hint(ENABLE_DEPTH_TEST);
-  cam.on();
-  
-  // ****
-  // NOTE: Objects draw earlier in the loop will obstruct 
-  // objects drawn afterward (despite alpha value!)
-  // ****
-  
-  // Field: Draw Rectangular plane comprising boundary area 
-  //
-  fill(255, 50);
-  rect(0, 0, B.x, B.y);
-  
-  // Field: Draw Selection Field
-  //
-  pushMatrix(); translate(0, 0, 1);
-  image(cam.chunkField.img, 0, 0, B.x, B.y);
-  popMatrix();
-}
-
 // Begin Drawing 2D Elements
 //
 void render2D() {
   
   hint(DISABLE_DEPTH_TEST);
-  cam.off();
-    
-  // Draw Slider Bars for Controlling Zoom and Rotation (2D canvas begins)
-  //
-  //cam.drawControls();
   
   // Draw Margin ToolBar
   //

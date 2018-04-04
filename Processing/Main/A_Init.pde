@@ -33,22 +33,21 @@ Table simConfig, simResultOverall, keyLog;
 // Objects for Viewing and Saving Results
 //
 GamePlot teamSpace, tradeSpace;
+AttentionPlot teamAttention;
 boolean showTeams, showTrade;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
-// Camera Object with built-in GUI for navigation and selection
+// Pixel margin allowed around edge of screen
 //
-Camera cam;
-PVector B; // Bounding Box for 3D Environment
-int MARGIN; // Pixel margin allowed around edge of screen
+int MARGIN; 
 
 // Semi-transparent Toolbar for information and sliders
 //
 Toolbar bar_left, bar_right; 
 int BAR_X, BAR_Y, BAR_W, BAR_H;
-boolean showGUI;
 
 // Processing Font Containers
+//
 PFont f12, f18, f24;
 
 // Counter to track which phase of initialization
@@ -85,9 +84,6 @@ void init() {
       f24 = createFont("Helvetica", 24);
       textFont(f12);
       
-      // Create canvas for drawing everything to earth surface
-      //
-      B = new PVector(3000, 3000, 0);
       MARGIN = 25;
       
     } else if (initPhase == 1) { showLoad = true;
@@ -102,9 +98,7 @@ void init() {
       
       // Initialize GUI3D
       //
-      showGUI = true;
       initToolbars();
-      initCamera();
       
     } else if (initPhase == 3) { showLoad = true;
       
@@ -115,31 +109,6 @@ void init() {
     delay(phaseDelay);
     
   }
-}
-
-void initCamera() {
-  
-  // Initialize 3D World Camera Defaults
-  //
-  cam = new Camera (B, MARGIN);
-  cam.ZOOM_DEFAULT = 0.25;
-  cam.ZOOM_POW     = 1.75;
-  cam.ZOOM_MAX     = 0.10;
-  cam.ZOOM_MIN     = 0.75;
-  cam.ROTATION_DEFAULT = PI; // (0 - 2*PI)
-  cam.init(); // Must End with init() if any BASIC variables within Camera() are changed from default
-  
-  // Add non-camera UI blockers and edit camera UI characteristics AFTER cam.init()
-  //
-  cam.vs.xpos = width - 3*MARGIN - bar_right.barW;
-  cam.hs.enable = false; //disable rotation
-  cam.vs.enable = false; //disable zoom
-  cam.drag.addBlocker(MARGIN, MARGIN, BAR_W, BAR_H);
-  cam.drag.addBlocker(width - MARGIN - bar_right.barW, MARGIN, BAR_W, BAR_H);
-  
-  // Turn cam off while still initializing
-  //
-  cam.off();
 }
 
 void initToolbars() {
@@ -159,7 +128,8 @@ void initToolbars() {
   bar_left.addRadio("Simulated Trade Space", 200, true, '1', false);
   bar_left.addRadio("Team Space",            200, true, '1', false);
   bar_left.addSlider("MIN Time Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
-  bar_left.addSlider("MAX Time Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'q', 'w', false);
+  bar_left.addSlider("MAX Time Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
+  bar_left.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
   
   // Right Toolbar
   bar_right = new Toolbar(BAR_X, BAR_Y + BAR_H + MARGIN , int(1.5*BAR_W), BAR_H, MARGIN);
@@ -263,6 +233,15 @@ void initKeyLog() {
   teamSpace.name = tradeSpace.name;
   teamSpace.col = #00FF00;
   
+  teamAttention = new AttentionPlot();
+  teamAttention.name.add("Fuel Efficiency");
+  teamAttention.name.add("Cargo Moved");
+  teamAttention.name.add("CO2 Emission");
+  teamAttention.name.add("NOx Emission");
+  teamAttention.name.add("SOx Emission");
+  teamAttention.name.add("Waiting Time");
+  teamAttention.name.add("Initial Cost");
+  
   keyLog = loadTable("data/logs/" + FILE_NAME, "header");
   int numKPI    = teamSpace.name.size();
   int numFields = keyLog.getColumnCount();
@@ -279,7 +258,6 @@ void initKeyLog() {
     seconds = int(timeString.substring(6,8));
     minutes = int(timeString.substring(3,5));
     hours   = int(timeString.substring(0,2));
-    println(seconds, minutes, hours);
     time = seconds + minutes*60 + hours*60*60;
     
     // Update min/max time values
@@ -296,11 +274,18 @@ void initKeyLog() {
       for (int j=0; j<numKPI; j++) {
         overall.addColumn();
         float value = keyLog.getFloat(i, numFields - numKPI + j);
-        if (j == 1) value /= 0.000001;
+        if (j == 1) value /= 0.000001; //  Unique to Maritime DSS Data from March 2018 Experiment
         overall.setFloat(0, j, value);
       }
       teamSpace.addResult(overall, time);
     }
+    
+    // Read Attention Values and Add them to AttentionPlot
+    //
+    String x_attention = keyLog.getString(i, "X_AXIS");
+    String y_attention = keyLog.getString(i, "Y_AXIS");
+    teamAttention.addResult(time, action, x_attention, y_attention);
+    
   }
   
   teamSpace.minRange = tradeSpace.minRange;

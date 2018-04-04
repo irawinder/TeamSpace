@@ -222,8 +222,129 @@ class Ilities {
     value = new ArrayList<Float>();
     for (int i=0; i<result.getColumnCount(); i++) {
       float scaler = 1.0;
-      //if (i==1) scaler = 0.000001;
       value.add(scaler*result.getFloat (0, i));
     }
+  }
+}
+
+class AttentionPlot {
+  
+  ArrayList<String>    name;
+  
+  ArrayList<ArrayList<Boolean>> attention;
+  ArrayList<Integer>   timeStamp;
+  ArrayList<String>    action;
+  
+  boolean showAxes;
+  
+  AttentionPlot() {
+    
+    name      = new ArrayList<String>();
+    
+    attention = new ArrayList<ArrayList<Boolean>>();
+    timeStamp = new ArrayList<Integer>();
+    action    = new ArrayList<String>();
+    
+    showAxes = true;
+  }
+  
+  AttentionPlot(ArrayList<String> name) {
+    super();
+    this.name = name;
+  }
+  
+  void addResult(int timeStamp, String action, String x, String y) {
+    ArrayList<Boolean> b = new ArrayList<Boolean>();
+    for (String n: name) {
+      if ( n.equals(x) || n.equals(y) ) {
+        b.add(true);
+      } else {
+        b.add(false);
+      }
+      this.timeStamp.add(timeStamp);
+      this.action.add(action);
+    }
+  }
+  
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime) {
+    if (showAxes) {
+      int MARGIN = 20;
+      pushMatrix(); 
+      translate(x+MARGIN, y);
+      stroke(255); 
+      noFill();
+      rect(0, 0, w-MARGIN, h);
+      fill(255);
+    }
+  
+    //  // Draw Y Axis Lables
+    //  //
+    //  String nY = name.get(yIndex); 
+    //  if (nY.length() > 18) nY = nY.substring(0, 18);
+    //  pushMatrix(); 
+    //  translate(0, h/2); 
+    //  rotate(-PI/2);
+    //  textAlign(CENTER, BOTTOM); 
+    //  text(nY, 0, -3);
+    //  popMatrix();
+  
+    //  if (game.size() > 0) {
+  
+    //    // Draw Y Axis Min Range
+    //    //
+    //    nY = "" + minRange.get(yIndex); 
+    //    pushMatrix(); 
+    //    translate(0, h); 
+    //    rotate(-PI/2);
+    //    textAlign(LEFT, BOTTOM); 
+    //    text(nY, 0, -3);
+    //    popMatrix();
+  
+    //    // Draw Y Axis Max Range
+    //    //
+    //    nY = "" + maxRange.get(yIndex); 
+    //    pushMatrix(); 
+    //    translate(0, 0); 
+    //    rotate(-PI/2);
+    //    textAlign(RIGHT, BOTTOM); 
+    //    text(nY, 0, -3);
+    //    popMatrix();
+    //  }
+  
+    //  // Draw X Axis Lable
+    //  //
+    //  String nX = name.get(xIndex); 
+    //  if (nX.length() > 18) nX = nX.substring(0, 18);
+    //  pushMatrix(); 
+    //  translate(w/2+MARGIN/2, h+3);
+    //  textAlign(CENTER, TOP); 
+    //  text(nX, 0, 0);
+    //  popMatrix();
+  
+    //  if (game.size() > 0) {
+  
+    //    // Draw X Axis Min Range
+    //    //
+    //    nX = "" + minRange.get(xIndex); 
+    //    pushMatrix(); 
+    //    translate(0, h+3);
+    //    textAlign(LEFT, TOP); 
+    //    text(nX, 0, 0);
+    //    popMatrix();
+  
+    //    // Draw X Axis Max Range
+    //    //
+    //    nX = "" + maxRange.get(xIndex);
+    //    pushMatrix(); 
+    //    translate(w-MARGIN, h+3);
+    //    textAlign(RIGHT, TOP); 
+    //    text(nX, 0, 0);
+    //    popMatrix();
+    //  }
+    //}
+    
+    // Plot Attention Bars
+    //
+    
   }
 }
