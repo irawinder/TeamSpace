@@ -48,8 +48,9 @@ void listen() {
   showTrade    = bar_B.radios.get(0).value;
   showTeams    = bar_B.radios.get(1).value;
   showEntry    = bar_B.radios.get(2).value;
-  showSimAct   = bar_A.radios.get(0).value;
-  showOtherAct = bar_A.radios.get(1).value;
+  showFocus    = bar_A.radios.get(0).value;
+  showSimAct   = bar_A.radios.get(1).value;
+  showOtherAct = bar_A.radios.get(2).value;
   
   minTime = int(bar_A.sliders.get(0).value);
   maxTime = int(bar_A.sliders.get(1).value);

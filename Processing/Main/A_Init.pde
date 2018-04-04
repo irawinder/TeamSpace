@@ -40,7 +40,7 @@ GamePlot tradeSpace;
 GamePlot[] teamSpace;
 AttentionPlot[] teamAttention;
 ChangePlot[] teamChange;
-boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct, showEntry;
+boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct, showFocus, showEntry;
 boolean[] showTeam;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
@@ -62,7 +62,7 @@ PFont f12, f18, f24;
 boolean initialized;
 boolean showLoad;
 int initPhase = 0;
-int phaseDelay = 0;
+int phaseDelay = 2000;
 String status[] = {
   "Initializing Canvas ...",
   "Loading Data ...",
@@ -137,6 +137,7 @@ void initToolbars() {
   
   for (int i=0; i<teamSpace.length; i++) {
     bar_main.addRadio("" + logFile[fileIndex.get(i)], 200, true, '1', false);
+    bar_main.radios.get(i).col = teamSpace[i].col;
   }
   
   // A Toolbar
@@ -149,9 +150,15 @@ void initToolbars() {
   bar_A.addSlider("Time - MIN Threshold (sec)", "", minTime, maxTime, minTime, 1, 'q', 'w', false);
   bar_A.addSlider("Time - MAX Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
   bar_A.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
-  bar_A.addRadio("Action: 'Simulate' Button Pressed", 200, true, '1', false);
-  bar_A.radios.get(0).col = #FFFF00;
-  bar_A.addRadio("Other Actions (Mouse Pressed, Key Pressed, etc)", 200, false, '1', false);
+  bar_A.addRadio("Team Attention", 200, true, '1', false);
+  bar_A.addRadio("Action: 'Simulate'", 200, false, '1', false);
+  bar_A.radios.get(1).col = #FFFF00;
+  bar_A.addRadio("Action: Other", 200, false, '1', false);
+  
+  for (int i=1; i<=2; i++) {
+    bar_A.radios.get(i).xpos += i*(bar_A.barW-2*MARGIN)/3;
+    bar_A.radios.get(i).ypos = bar_A.radios.get(0).ypos;
+  }
   
   // B Toolbar
   //
@@ -267,6 +274,7 @@ void initKeyLogs() {
   showAttention = true;
   showSimAct    = true;
   showOtherAct  = true;
+  showFocus     = true;
   showEntry     = false;
   
   showTeam = new boolean[fileIndex.size()];

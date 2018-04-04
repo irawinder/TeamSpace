@@ -63,12 +63,15 @@ void render2D() {
   } else {
     String entry = "";
     for (int i=0; i<keyLogNames.size(); i++) {
-      entry = keyLogNames.get(i);
-      textAlign(RIGHT);
-      text(entry, 200, i*13);
+      entry += keyLogNames.get(i);
+      entry += "\n";
     }
+    textAlign(RIGHT);
+    text(entry, 200, 0);
   }
   popMatrix();
+  
+  int vert = (height - BAR_H - 3*MARGIN)/4;
   
   // Plot Attention Graphs
   //
@@ -77,7 +80,7 @@ void render2D() {
     for (int k=0; k<teamSpace.length; k++) {
       if (showTeam[k]) {
         int time = int(bar_A.sliders.get(2).value);
-        teamAttention[k].drawPlot(0, 0, bar_A.sliders.get(0).len, 125, minTime,  maxTime, time, showSimAct, showOtherAct, k, teamSpace.length);  
+        teamAttention[k].drawPlot(0, 0, bar_A.sliders.get(0).len, vert, minTime,  maxTime, time, showSimAct, showOtherAct, showFocus, k, teamSpace.length);  
       }
     }
   }
@@ -85,12 +88,12 @@ void render2D() {
   
   // Plot Change Graphs
   //
-  pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN);
+  pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN);
   if (showAttention) {
     for (int k=0; k<teamSpace.length; k++) {
       if (showTeam[k]) {
         int time = int(bar_A.sliders.get(2).value); 
-        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN), minTime,  maxTime, time, showSimAct, showOtherAct);  
+        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN), minTime,  maxTime, time, showSimAct, showOtherAct, showFocus, k, teamSpace.length);  
       }
     }
   }

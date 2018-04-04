@@ -270,7 +270,7 @@ class AttentionPlot {
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct, int rank, int tot_rank) {
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct, boolean showFocus, int rank, int tot_rank) {
     
     // Vertical spacing between elements
     //
@@ -330,25 +330,27 @@ class AttentionPlot {
         
         // Plot Attention
         //
-        int weight = int( 10.0/tot_rank );
-        strokeWeight(weight); stroke(col); noFill();
-        for (int i=1; i<action.size(); i++) {
-          String a             = action.get(i);
-          int t_i              = timeStamp.get(i-1);
-          int t_f              = timeStamp.get(i);
-          ArrayList<Boolean> b = attention.get(i);  
-          
-          if (t_i >= minTime && t_f <= maxTime) {
+        if (showFocus) {
+          int weight = int( h/10/tot_rank );
+          strokeWeight(weight); stroke(col); noFill();
+          for (int i=1; i<action.size(); i++) {
+            String a             = action.get(i);
+            int t_i              = timeStamp.get(i-1);
+            int t_f              = timeStamp.get(i);
+            ArrayList<Boolean> b = attention.get(i);  
             
-            int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
-            int x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
-            
-            for (int j=0; j<b.size(); j++) {
-              boolean viewing = b.get(j);
-              int vert = spacer/2 + j*spacer - 5 + rank*weight;
-              if (viewing) line(x_i, vert, x_f, vert);
+            if (t_i >= minTime && t_f <= maxTime) {
+              
+              int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+              int x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
+              
+              for (int j=0; j<b.size(); j++) {
+                boolean viewing = b.get(j);
+                int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
+                if (viewing) line(x_i, vert, x_f, vert);
+              }
+              
             }
-            
           }
         }
           
@@ -443,7 +445,7 @@ class ChangePlot {
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct) {
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct, boolean showFocus, int rank, int tot_rank) {
     
     // Vertical spacing between elements
     //
@@ -496,16 +498,20 @@ class ChangePlot {
         
         // Plot Change
         //
-        hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
-        fill(col); noStroke();
-        for (int i=0; i<action.size(); i++) {
-          int t_i              = timeStamp.get(i);
-          ArrayList<Boolean> b = change.get(i);  
-          if (t_i >= minTime && t_i <= maxTime) {
-            int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
-            for (int j=0; j<b.size(); j++) {
-              boolean changed = b.get(j);
-              if (changed) ellipse(x_i, spacer/2 + j*spacer, 5, 5);
+        if (showFocus) {
+          hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
+          fill(col); noStroke();
+          for (int i=0; i<action.size(); i++) {
+            int t_i              = timeStamp.get(i);
+            ArrayList<Boolean> b = change.get(i);  
+            if (t_i >= minTime && t_i <= maxTime) {
+              int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+              for (int j=0; j<b.size(); j++) {
+                boolean changed = b.get(j);
+                //int vert = spacer/2 + j*spacer - 1 * tot_rank / 2 + 2 * rank;
+                int vert = spacer/2 + j*spacer;
+                if (changed) ellipse(x_i, vert, 5, 5);
+              }
             }
           }
         }
