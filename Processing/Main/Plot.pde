@@ -270,7 +270,7 @@ class AttentionPlot {
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct ) {
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct, int rank, int tot_rank) {
     
     // Vertical spacing between elements
     //
@@ -278,13 +278,13 @@ class AttentionPlot {
     
     pushMatrix(); translate(x, y);
     
-        // Draw Graph Grid
-        //
-        noFill(); stroke(25); strokeWeight(1);
-        for (int i=0; i<name.size(); i++) {
-          int y_pos = spacer/2 + i*spacer;
-          line(0, y_pos, w, y_pos); 
-        }
+        //// Draw Graph Grid
+        ////
+        //noFill(); stroke(25); strokeWeight(1);
+        //for (int i=0; i<name.size(); i++) {
+        //  int y_pos = spacer/2 + i*spacer;
+        //  line(0, y_pos, w, y_pos); 
+        //}
         
         // Show Mouse click and release actions
         //
@@ -319,11 +319,19 @@ class AttentionPlot {
               fill(255); text(simCounter, x_i, - 4);
             }
           }
+          if (a.equals("Start") && showSimAct) {
+            if (t >= minTime && t <= maxTime) {
+              stroke(#FF0000, 150); strokeWeight(2);
+              line(x_i, 0, x_i, h);
+              strokeWeight(1);
+            }
+          }
         }
         
         // Plot Attention
         //
-        strokeWeight(10); stroke(col); noFill();
+        int weight = int( 10.0/tot_rank );
+        strokeWeight(weight); stroke(col); noFill();
         for (int i=1; i<action.size(); i++) {
           String a             = action.get(i);
           int t_i              = timeStamp.get(i-1);
@@ -337,7 +345,8 @@ class AttentionPlot {
             
             for (int j=0; j<b.size(); j++) {
               boolean viewing = b.get(j);
-              if (viewing) line(x_i, spacer/2 + j*spacer, x_f, spacer/2 + j*spacer);
+              int vert = spacer/2 + j*spacer - 5 + rank*weight;
+              if (viewing) line(x_i, vert, x_f, vert);
             }
             
           }
@@ -442,13 +451,13 @@ class ChangePlot {
     
     pushMatrix(); translate(x, y);
         
-        // Draw Graph Grid
-        //
-        noFill(); stroke(25); strokeWeight(1);
-        for (int i=0; i<name.size(); i++) {
-          int y_pos = spacer/2 + i*spacer;
-          line(0, y_pos, w, y_pos); 
-        }
+        //// Draw Graph Grid
+        ////
+        //noFill(); stroke(25); strokeWeight(1);
+        //for (int i=0; i<name.size(); i++) {
+        //  int y_pos = spacer/2 + i*spacer;
+        //  line(0, y_pos, w, y_pos); 
+        //}
         
         // Show Mouse click and release actions
         //

@@ -21,21 +21,27 @@
  *               OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Name of Team's keylog file located in "/data/logs/..."
+// Overrides the number of KPI fields to detect. 
+// To fix this, make sure n_overall.csv files have no erroneous columns
 //
-String FILE_NAME = "14_50_33_log.csv";
-int NUM_FIELDS = 7; // Overrides the number of fields to detect
+int NUM_FIELDS = 7;
 
 // Tables Containing current simulation configuration and results
 //
-Table simConfig, simResultOverall, keyLog;
+Table simConfig, simResultOverall;
+Table[] keyLog;
+ArrayList<String> keyLogNames;
+String[] logFile;
+ArrayList<Integer> fileIndex;
 
 // Objects for Viewing and Saving Results
 //
-GamePlot teamSpace, tradeSpace;
-AttentionPlot teamAttention;
-ChangePlot teamChange;
-boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct;
+GamePlot tradeSpace;
+GamePlot[] teamSpace;
+AttentionPlot[] teamAttention;
+ChangePlot[] teamChange;
+boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct, showEntry;
+boolean[] showTeam;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
 // Pixel margin allowed around edge of screen
@@ -93,7 +99,7 @@ void init() {
       // 
       initSimConfig();
       initSimResult();
-      initKeyLog();
+      initKeyLogs();
       
     } else if (initPhase == 2) { showLoad = true;
       
@@ -123,15 +129,19 @@ void initToolbars() {
   
   // Main Toolbar
   //
-  bar_main = new Toolbar(BAR_X, BAR_Y, 1*BAR_W/3 - MARGIN/2, BAR_H, MARGIN);
-  bar_main.title = "TeamSpace IO\n\n";
-  bar_main.credit = "Press ' r ' to reset\n\n";
-  bar_main.explanation = "Filename:\n/logs/" + FILE_NAME;
-  bar_main.controlY = BAR_Y + MARGIN + 4*bar_main.CONTROL_H;
+  bar_main = new Toolbar(BAR_X, BAR_Y, 1*BAR_W/3 - MARGIN/2 + 0, BAR_H, MARGIN);
+  bar_main.title = "TeamSpace IO\n";
+  bar_main.credit = "Press ' r ' to reset\n";
+  bar_main.explanation = "";
+  bar_main.controlY = BAR_Y + MARGIN + 2*bar_main.CONTROL_H;
+  
+  for (int i=0; i<teamSpace.length; i++) {
+    bar_main.addRadio("" + logFile[fileIndex.get(i)], 200, true, '1', false);
+  }
   
   // A Toolbar
   //
-  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN, BAR_Y, 2*BAR_W/3 - MARGIN/2, BAR_H, MARGIN);
+  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN, BAR_Y, 2*BAR_W/3 - MARGIN/2 + 75, BAR_H, MARGIN);
   bar_A.title = "";
   bar_A.credit = "";
   bar_A.explanation = "";
@@ -145,7 +155,7 @@ void initToolbars() {
   
   // B Toolbar
   //
-  bar_B = new Toolbar(BAR_X + BAR_W + MARGIN, BAR_Y, BAR_W, BAR_H, MARGIN);
+  bar_B = new Toolbar(BAR_X + BAR_W + MARGIN + 75, BAR_Y, BAR_W - 75, BAR_H, MARGIN);
   bar_B.title = "";
   bar_B.credit = "";
   bar_B.explanation = "";
@@ -153,23 +163,25 @@ void initToolbars() {
   
   bar_B.addRadio("Simulated Trade Space", 200, true, '1', false);
   bar_B.addRadio("Team Space",            200, true, '1', false);
+  bar_B.addRadio("Log Entry",             200, false, '1', false);
+  int beg = 3;
   
-  int num = teamSpace.name.size();
+  int num = teamSpace[0].name.size();
   for (int j=0; j<2; j++) {
     for (int i=0; i<num; i++) {
-      String name = teamSpace.name.get(i); 
-      if (name.length() > 18) name = name.substring(0,18);
+      String name = teamSpace[0].name.get(i); 
+      if (name.length() > 14) name = name.substring(0,14);
       bar_B.addRadio(name, 200, false,  '1', false);
     }
   }
   
-  for (int i=num+2; i<2*num+2; i++) {
+  for (int i=num+beg; i<2*num+beg; i++) {
     bar_B.radios.get(i).xpos = bar_B.barX + bar_B.barW/3;
     bar_B.radios.get(i).ypos = bar_B.radios.get(i-num).ypos;
   }
-  for (int i=0+2; i<2*num+2; i++) {
+  for (int i=0+beg; i<2*num+beg; i++) {
     bar_B.radios.get(i).xpos += 20  + bar_B.barW/3;
-    bar_B.radios.get(i).ypos -= ((i-2)%num)*10 + 2*bar_B.CONTROL_H;
+    bar_B.radios.get(i).ypos -= ((i-beg)%num)*10 + beg*bar_B.CONTROL_H;
   }
 }
 
@@ -235,12 +247,30 @@ void initSimResult() {
   
 }
 
-void initKeyLog() {
+void initKeyLogs() {
+  String filefolder = "logs/";
+  File folder = new File(dataPath(filefolder));
+  logFile = folder.list();
+  fileIndex = new ArrayList<Integer>();
+  for (int i=0; i<logFile.length; i++) {
+    String f = logFile[i];
+    String type = f.substring(f.length() - 4, f.length());
+    if (type.equals(".csv")) fileIndex.add(i);
+  }
+  
+  keyLog = new Table[fileIndex.size()];
+  teamSpace = new GamePlot[fileIndex.size()];
+  teamChange = new ChangePlot[fileIndex.size()];
+  teamAttention = new AttentionPlot[fileIndex.size()];
   
   showTeams     = true;
   showAttention = true;
   showSimAct    = true;
   showOtherAct  = true;
+  showEntry     = false;
+  
+  showTeam = new boolean[fileIndex.size()];
+  for (int i=0; i<showTeam.length; i++) showTeam[i] = true;
   
   MIN_TIME = 0;
   MAX_TIME = 24*60*60;
@@ -248,38 +278,53 @@ void initKeyLog() {
   minTime = MAX_TIME;
   maxTime = MIN_TIME;
   
-  teamSpace = new GamePlot();
-  teamSpace.name = tradeSpace.name;
-  teamSpace.col = #FF00FF;
-  teamSpace.highlight = true;
+  colorMode(HSB);
+  for (int i=0; i<fileIndex.size(); i++) {
+    int col = color(255*float(i)/fileIndex.size(), 255, 255);
+    initKeyLog(i, fileIndex.get(i), col);
+  }
+  colorMode(RGB);
+}
+
+void initKeyLog(int logIndex, int fileIndex, int col) {
   
-  teamAttention = new AttentionPlot();
-  teamAttention.name.add("Fuel Efficiency");
-  teamAttention.name.add("Cargo Moved");
-  teamAttention.name.add("CO2 Emission");
-  teamAttention.name.add("NOx Emission");
-  teamAttention.name.add("SOx Emission");
-  teamAttention.name.add("Waiting Time");
-  teamAttention.name.add("Initial Cost");
-  teamAttention.col = #FF00FF;
+  GamePlot tS = new GamePlot();
+  tS.name = tradeSpace.name;
+  tS.col = col;
+  tS.highlight = true;
   
-  teamChange = new ChangePlot();
-  keyLog = loadTable("data/logs/" + FILE_NAME);
+  AttentionPlot tA = new AttentionPlot();
+  tA.name.add("Fuel Efficiency");
+  tA.name.add("Cargo Moved");
+  tA.name.add("CO2 Emission");
+  tA.name.add("NOx Emission");
+  tA.name.add("SOx Emission");
+  tA.name.add("Waiting Time");
+  tA.name.add("Initial Cost");
+  tA.col = col;
+  
+  // Name of Team's keylog file located in "/data/logs/..."
+  //
+  ChangePlot tC = new ChangePlot();
+  keyLog[logIndex] = loadTable("data/logs/" + logFile[fileIndex]);
   int begin = 0;
-  int end = keyLog.getColumnCount()-1;
-  for (int i=0; i<keyLog.getColumnCount(); i++) {
-    if (keyLog.getString(0, i).equals("Action")) begin = i+1;
-    if (keyLog.getString(0, i).equals("X_AXIS")) end   = i-1;
+  int end = keyLog[logIndex].getColumnCount()-1;
+  keyLogNames = new ArrayList<String>();
+  for (int i=0; i<keyLog[logIndex].getColumnCount(); i++) {
+    String name = keyLog[logIndex].getString(0, i);
+    keyLogNames.add(name);
+    if (name.equals("Action")) begin = i+1;
+    if (name.equals("X_AXIS")) end   = i-1;
   }
   for (int i=begin; i<=end; i++) {
-    teamChange.name.add(keyLog.getString(0, i));
+    tC.name.add(keyLog[logIndex].getString(0, i));
   }
-  teamChange.col = #FF00FF;
+  tC.col = col;
   
-  keyLog = loadTable("data/logs/" + FILE_NAME, "header");
-  int numKPI    = teamSpace.name.size();
-  int numFields = keyLog.getColumnCount();
-  int numLogs   = keyLog.getRowCount();
+  keyLog[logIndex] = loadTable("data/logs/" + logFile[fileIndex], "header");
+  int numKPI    = tS.name.size();
+  int numFields = keyLog[logIndex].getColumnCount();
+  int numLogs   = keyLog[logIndex].getRowCount();
   Table overall;
   String timeString;
   
@@ -287,7 +332,7 @@ void initKeyLog() {
     
     // Read Time Value (seconds)
     //
-    timeString = keyLog.getString(i, 0);
+    timeString = keyLog[logIndex].getString(i, 0);
     int seconds, minutes, hours, time;
     seconds = int(timeString.substring(6,8));
     minutes = int(timeString.substring(3,5));
@@ -301,24 +346,24 @@ void initKeyLog() {
     
     // Read KPI Values and Add them to gamePlot
     //
-    String action = keyLog.getString(i, "Action");
+    String action = keyLog[logIndex].getString(i, "Action");
     if (action.equals("Simulate")) {
       overall = new Table();
       overall.addRow();
       for (int j=0; j<numKPI; j++) {
         overall.addColumn();
-        float value = keyLog.getFloat(i, numFields - numKPI + j);
+        float value = keyLog[logIndex].getFloat(i, numFields - numKPI + j);
         if (j == 1) value /= 0.000001; //  Unique to Maritime DSS Data from March 2018 Experiment
         overall.setFloat(0, j, value);
       }
-      teamSpace.addResult(overall, time);
+      tS.addResult(overall, time);
     }
     
     // Read Attention Values and Add them to AttentionPlot
     //
-    String x_attention = keyLog.getString(i, "X_AXIS");
-    String y_attention = keyLog.getString(i, "Y_AXIS");
-    teamAttention.addResult(time, action, x_attention, y_attention);
+    String x_attention = keyLog[logIndex].getString(i, "X_AXIS");
+    String y_attention = keyLog[logIndex].getString(i, "Y_AXIS");
+    tA.addResult(time, action, x_attention, y_attention);
     
     // Read Change Values and Add them to ChangePlot
     //
@@ -326,16 +371,20 @@ void initKeyLog() {
     ArrayList<String> after  = new ArrayList<String>();
     for (int j=begin; j<=end; j++) {
       if (i == 0) {
-        before.add(keyLog.getString(i, j));
+        before.add(keyLog[logIndex].getString(i, j));
       } else {
-        before.add(keyLog.getString(i-1, j));
+        before.add(keyLog[logIndex].getString(i-1, j));
       }
-      after.add(keyLog.getString(i, j));
+      after.add(keyLog[logIndex].getString(i, j));
     }
-    teamChange.addResult(time, action, before, after);
+    tC.addResult(time, action, before, after);
     
   }
   
-  teamSpace.minRange = tradeSpace.minRange;
-  teamSpace.maxRange = tradeSpace.maxRange;
+  tS.minRange = tradeSpace.minRange;
+  tS.maxRange = tradeSpace.maxRange;
+  
+  teamSpace[logIndex]     = tS;
+  teamAttention[logIndex] = tA;
+  teamChange[logIndex]    = tC;
 }

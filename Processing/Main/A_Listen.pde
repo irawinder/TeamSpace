@@ -25,25 +25,29 @@
 //
 void listen() {
   
-  // Constrain Buttons to viable solutions
-  //
-  constrainButtons();
+  for (int k=0; k<teamSpace.length; k++) {
+    
+    // Constrain Buttons to viable solutions
+    //
+    constrainButtons(k);
   
-  int num = teamSpace.name.size();
-  int beg = 2;
-  for (int i=0; i<num; i++) {
-    if (bar_B.radios.get(beg+i).value) {
-      teamSpace.xIndex = i;
-      tradeSpace.xIndex = i;
-    }
-    if (bar_B.radios.get(beg+i+num).value) {
-      teamSpace.yIndex = i;
-      tradeSpace.yIndex = i;
+    int num = teamSpace[k].name.size();
+    int beg = 3;
+    for (int i=0; i<num; i++) {
+      if (bar_B.radios.get(beg+i).value) {
+        teamSpace[k].xIndex = i;
+        tradeSpace.xIndex = i;
+      }
+      if (bar_B.radios.get(beg+i+num).value) {
+        teamSpace[k].yIndex = i;
+        tradeSpace.yIndex = i;
+      }
     }
   }
   
   showTrade    = bar_B.radios.get(0).value;
   showTeams    = bar_B.radios.get(1).value;
+  showEntry    = bar_B.radios.get(2).value;
   showSimAct   = bar_A.radios.get(0).value;
   showOtherAct = bar_A.radios.get(1).value;
   
@@ -57,6 +61,8 @@ void listen() {
   ControlSlider lg = bar_A.sliders.get(1);
   if (sm.value >= lg.value && sm.isDragged) lg.value = sm.value;
   if (lg.value <= sm.value && lg.isDragged) sm.value = lg.value;
+  
+  for (int i=0; i<showTeam.length; i++) if (i<bar_main.radios.size()) showTeam[i] = bar_main.radios.get(i).value;
   
 }
 
@@ -136,12 +142,12 @@ void keyReleased() { if (initialized) {
 
 } }
 
-void constrainButtons() {
+void constrainButtons(int teamIndex) {
   
   // Results View: X-AXIS and Y-Axis - Set mutually exclusive radios to false
   //
-  int num = teamSpace.name.size();
-  int beg = 2;
+  int num = teamSpace[teamIndex].name.size();
+  int beg = 3;
   for (int i=0; i<num+1; i+=num) {
     for (int j=0; j<num; j++) {
       if(bar_B.radios.get(beg+i+j).hover() && bar_B.radios.get(beg+i+j).value) {

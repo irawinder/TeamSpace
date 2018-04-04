@@ -48,19 +48,38 @@ void render2D() {
   
   popMatrix();
   
-  // Plot Walk Graphs
+  // Plot Walk Graphs or Log entry
   //
   pushMatrix(); translate(bar_B.barX, BAR_Y + BAR_H + MARGIN);
-  if (showTrade)     tradeSpace.drawPlot(   0, 0, BAR_W, height - 4*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
-  if (showTeams)     teamSpace.drawPlot(    0, 0, BAR_W, height - 4*MARGIN - BAR_H, minTime,  maxTime);
+  if (!showEntry) {
+    if (showTrade)     tradeSpace.drawPlot(   0, 0, bar_B.barW, height - 4*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
+    if (showTeams) {
+      for (int k=0; k<teamSpace.length; k++) {
+        if (showTeam[k]) {
+          teamSpace[k].drawPlot(    0, 0, bar_B.barW, height - 4*MARGIN - BAR_H, minTime,  maxTime);
+        }
+      }
+    }
+  } else {
+    String entry = "";
+    for (int i=0; i<keyLogNames.size(); i++) {
+      entry = keyLogNames.get(i);
+      textAlign(RIGHT);
+      text(entry, 200, i*13);
+    }
+  }
   popMatrix();
   
   // Plot Attention Graphs
   //
   pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN);
   if (showAttention) {
-    int time = int(bar_A.sliders.get(2).value);
-    teamAttention.drawPlot(0, 0, bar_A.sliders.get(0).len, 125, minTime,  maxTime, time, showSimAct, showOtherAct);  
+    for (int k=0; k<teamSpace.length; k++) {
+      if (showTeam[k]) {
+        int time = int(bar_A.sliders.get(2).value);
+        teamAttention[k].drawPlot(0, 0, bar_A.sliders.get(0).len, 125, minTime,  maxTime, time, showSimAct, showOtherAct, k, teamSpace.length);  
+      }
+    }
   }
   popMatrix();
   
@@ -68,8 +87,12 @@ void render2D() {
   //
   pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN);
   if (showAttention) {
-    int time = int(bar_A.sliders.get(2).value); 
-    teamChange.drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN), minTime,  maxTime, time, showSimAct, showOtherAct);  
+    for (int k=0; k<teamSpace.length; k++) {
+      if (showTeam[k]) {
+        int time = int(bar_A.sliders.get(2).value); 
+        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + 125 + 2*MARGIN), minTime,  maxTime, time, showSimAct, showOtherAct);  
+      }
+    }
   }
   popMatrix();
 }
@@ -109,4 +132,11 @@ void loadingScreen(PImage bg, int phase, int numPhases, String status) {
   text(status, 0, 0);
 
   popMatrix();
+}
+
+int getLogIndex(int time, int logIndex) {
+  for (int i=0; i<keyLog[logIndex].getRowCount(); i++) {
+    // get index of nearest field
+  }
+  return 0;
 }
