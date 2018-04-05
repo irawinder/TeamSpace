@@ -74,6 +74,9 @@ void mousePressed() { if (initialized) {
   bar_A.pressed();
   bar_B.pressed();
   
+  tradeSpace.click();
+  for (int i=0; i<teamSpace.length; i++) teamSpace[i].click();
+  
 } }
 
 void mouseClicked() { if (initialized) { 
@@ -88,6 +91,9 @@ void mouseReleased() { if (initialized) {
   bar_main.released();
   bar_A.released();
   bar_B.released();
+  
+  tradeSpace.release();
+  for (int i=0; i<teamSpace.length; i++) teamSpace[i].release();
   
 } }
 
@@ -113,6 +119,16 @@ void keyPressed() { if (initialized) {
       bar_main.restoreDefault();
       bar_A.restoreDefault();
       bar_B.restoreDefault();
+      tradeSpace.reset();
+      for (int i=0; i<teamSpace.length; i++) teamSpace[i].reset();
+      break;
+    case '+':
+      tradeSpace.zoom += 0.05;
+      for (int i=0; i<teamSpace.length; i++) teamSpace[i].zoom += 0.05;
+      break;
+    case '-':
+      tradeSpace.zoom -= 0.05;
+      for (int i=0; i<teamSpace.length; i++) teamSpace[i].zoom -= 0.05;
       break;
   }
   
@@ -135,11 +151,11 @@ void keyPressed() { if (initialized) {
 } }
 
 void keyReleased() { if (initialized) { 
-  loop();
+  //loop();
     
-    bar_main.released();
-    bar_A.released();
-    bar_B.released();
+  bar_main.released();
+  bar_A.released();
+  bar_B.released();
 
 } }
 

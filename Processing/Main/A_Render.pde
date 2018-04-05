@@ -50,17 +50,26 @@ void render2D() {
   
   // Plot Walk Graphs or Log entry
   //
-  pushMatrix(); translate(bar_B.barX, BAR_Y + BAR_H + MARGIN);
   if (!showEntry) {
-    if (showTrade)     tradeSpace.drawPlot(   0, 0, bar_B.barW, height - 4*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
+    
+    textAlign(LEFT, TOP);
+    text("Use + / - keys to zoom in and out.\nClick and drag to pan.", bar_B.barX + 24, BAR_Y + BAR_H + MARGIN + 4);
+    
+    tradeSpace.update(bar_B.barX, BAR_Y + BAR_H + MARGIN, bar_B.barW, height - 4*MARGIN - BAR_H);
+    for (int i=0; i<teamSpace.length; i++) teamSpace[i].update(bar_B.barX, BAR_Y + BAR_H + MARGIN, bar_B.barW, height - 4*MARGIN - BAR_H);
+    
+    if (showTrade) {
+      tradeSpace.drawPlot(bar_B.barX, BAR_Y + BAR_H + MARGIN, bar_B.barW, height - 4*MARGIN - BAR_H, MIN_TIME, MAX_TIME);
+    }
     if (showTeams) {
       for (int k=0; k<teamSpace.length; k++) {
         if (showTeam[k]) {
-          teamSpace[k].drawPlot(    0, 0, bar_B.barW, height - 4*MARGIN - BAR_H, minTime,  maxTime);
+          teamSpace[k].drawPlot(bar_B.barX, BAR_Y + BAR_H + MARGIN, bar_B.barW, height - 4*MARGIN - BAR_H, minTime,  maxTime);
         }
       }
     }
   } else {
+    pushMatrix(); translate(bar_B.barX, BAR_Y + BAR_H + MARGIN);
     String entry = "";
     for (int i=0; i<keyLogNames.size(); i++) {
       entry += keyLogNames.get(i);
@@ -68,8 +77,9 @@ void render2D() {
     }
     textAlign(RIGHT);
     text(entry, 200, 0);
+    popMatrix();
   }
-  popMatrix();
+  
   
   int vert = (height - BAR_H - 3*MARGIN)/4;
   

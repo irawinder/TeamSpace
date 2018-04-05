@@ -8,7 +8,13 @@ class GamePlot {
   boolean showPath;
   boolean showAxes;
   boolean highlight;
-
+  
+  float zoom;
+  float offset_x, offset_y, origin_x, origin_y;
+  
+  boolean isDragged;
+  int x_init, y_init;
+  
   GamePlot() {
     game = new ArrayList<Ilities>();
     name = new ArrayList<String>();
@@ -20,8 +26,34 @@ class GamePlot {
     showAxes = true;
     highlight = false;
     col = 255;
+    
+    zoom = 0.0;
+    offset_x = 0;
+    offset_y = 0;
+    origin_x = 0;
+    origin_y = 0;
   }
-
+  
+  void click() {
+    isDragged = true;
+    x_init = mouseX;
+    y_init = mouseY;
+  }
+  
+  void release() {
+    isDragged = false;
+    origin_x = offset_x;
+    origin_y = offset_y;
+  }
+  
+  void reset() {
+    zoom = 0;
+    offset_x = 0;
+    offset_y = 0;
+    origin_x = 0;
+    origin_y = 0;
+  }
+  
   void addResult(Table result, int timeStamp) {
     Ilities i = new Ilities(result, timeStamp);
     game.add(i);
@@ -41,7 +73,30 @@ class GamePlot {
     updateRange();
   }
 
+  void update(int x, int y, int w, int h) {
+    
+    // Update offsets
+    //
+    if (isDragged && x_init > x && x_init < x+w && y_init > y && y_init < y+h) {
+      offset_x = origin_x + float(x_init - mouseX)/w;
+      offset_y = origin_y + float(mouseY - y_init)/h;
+    }
+  }
+
   void drawPlot(int x, int y, int w, int h, int minTime, int maxTime) {
+    
+    zoom = min(0.45, zoom);
+    
+    float min_x = minRange.get(xIndex);
+    float min_y = minRange.get(yIndex);
+    float max_x = maxRange.get(xIndex);
+    float max_y = maxRange.get(yIndex);
+    float range_x = max_x - min_x;
+    float range_y = max_y - min_y;
+    min_y += + zoom*range_y + offset_y*range_y;
+    max_y += - zoom*range_y + offset_y*range_y;
+    min_x += + zoom*range_x + offset_x*range_x;
+    max_x += - zoom*range_x + offset_x*range_x;
     
     int MARGIN = 20;
     pushMatrix(); translate(x+MARGIN, y);
@@ -55,9 +110,7 @@ class GamePlot {
       //
       String nY = name.get(yIndex); 
       if (nY.length() > 18) nY = nY.substring(0, 18);
-      pushMatrix(); 
-      translate(0, h/2); 
-      rotate(-PI/2);
+      pushMatrix(); translate(0, h/2); rotate(-PI/2);
       textAlign(CENTER, BOTTOM); 
       text(nY, 0, -3);
       popMatrix();
@@ -66,20 +119,16 @@ class GamePlot {
   
         // Draw Y Axis Min Range
         //
-        nY = "" + minRange.get(yIndex); 
-        pushMatrix(); 
-        translate(0, h); 
-        rotate(-PI/2);
+        nY = "" + min_y; 
+        pushMatrix(); translate(0, h); rotate(-PI/2);
         textAlign(LEFT, BOTTOM); 
         text(nY, 0, -3);
         popMatrix();
   
         // Draw Y Axis Max Range
         //
-        nY = "" + maxRange.get(yIndex); 
-        pushMatrix(); 
-        translate(0, 0); 
-        rotate(-PI/2);
+        nY = "" + max_y; 
+        pushMatrix(); translate(0, 0); rotate(-PI/2);
         textAlign(RIGHT, BOTTOM); 
         text(nY, 0, -3);
         popMatrix();
@@ -89,8 +138,7 @@ class GamePlot {
       //
       String nX = name.get(xIndex); 
       if (nX.length() > 18) nX = nX.substring(0, 18);
-      pushMatrix(); 
-      translate(w/2+MARGIN/2, h+3);
+      pushMatrix(); translate(w/2+MARGIN/2, h+3);
       textAlign(CENTER, TOP); 
       text(nX, 0, 0);
       popMatrix();
@@ -99,18 +147,16 @@ class GamePlot {
   
         // Draw X Axis Min Range
         //
-        nX = "" + minRange.get(xIndex); 
-        pushMatrix(); 
-        translate(0, h+3);
+        nX = "" + min_x; 
+        pushMatrix(); translate(0, h+3);
         textAlign(LEFT, TOP); 
         text(nX, 0, 0);
         popMatrix();
   
         // Draw X Axis Max Range
         //
-        nX = "" + maxRange.get(xIndex);
-        pushMatrix(); 
-        translate(w-MARGIN, h+3);
+        nX = "" + max_x;
+        pushMatrix(); translate(w-MARGIN, h+3);
         textAlign(RIGHT, TOP); 
         text(nX, 0, 0);
         popMatrix();
@@ -119,34 +165,43 @@ class GamePlot {
     
     // Plot points
     //
+    float diameter = 10;
+    float alpha, alphaScale;
     Ilities last = new Ilities();
     for (int i=0; i<game.size(); i++) {
-      float alphaScale = 1.0;
-      float x_plot = map(game.get(i).value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
-      float y_plot = map(game.get(i).value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
-      float diameter = 10;
-      float alpha;
+      float val_x = game.get(i).value.get(xIndex);
+      float val_y = game.get(i).value.get(yIndex);
+      float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+      float y_plot = map(val_y, min_y, max_y, 0, h);
       if (showPath) {
         //alpha = 255.0*float(i+1)/game.size();
         alpha = 100;
       } else {
         alpha = 255;
       }
+      alphaScale = 1.0;
       if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
       
-      if (i >= 1 && showPath) {
-        float x_plot_last = map(last.value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
-        float y_plot_last = map(last.value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
-        stroke(col, alphaScale*alpha); strokeWeight(3); 
-        line(x_plot_last, h - y_plot_last, x_plot, h - y_plot);
-      }
+      if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
+        
+        if (i >= 1 && showPath) {
+          val_x = last.value.get(xIndex);
+          val_y = last.value.get(yIndex);
+          float x_plot_last = map(val_x, min_x, max_x, 0, w-MARGIN);
+          float y_plot_last = map(val_y, min_y, max_y, 0, h);
+          if (x_plot_last > 0 && x_plot_last < w-MARGIN && y_plot_last > 0 && y_plot_last < h) {
+            stroke(col, alphaScale*alpha); strokeWeight(3); 
+            line(x_plot_last, h - y_plot_last, x_plot, h - y_plot);
+          }
+        }
+        noStroke(); fill(col, alphaScale*255); 
+        if (highlight) {
+          stroke(#FFFF00, alphaScale*255); 
+          strokeWeight(1); 
+        }
+        ellipse(x_plot, h - y_plot, diameter, diameter);
       
-      noStroke(); fill(col, alphaScale*255); 
-      if (highlight) {
-        stroke(#FFFF00, alphaScale*255); 
-        strokeWeight(1); 
       }
-      ellipse(x_plot, h - y_plot, diameter, diameter);
 
       last = game.get(i);
     }
@@ -155,12 +210,17 @@ class GamePlot {
     //
     hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
     for (int i=0; i<game.size(); i++) {
-      float alphaScale = 1.0;
-      float x_plot = map(game.get(i).value.get(xIndex), minRange.get(xIndex), maxRange.get(xIndex), 0, w);
-      float y_plot = map(game.get(i).value.get(yIndex), minRange.get(yIndex), maxRange.get(yIndex), 0, h);
       if (showPath) {
-        if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
-        fill(255, alphaScale*255); stroke(255, alphaScale*255); text(i+1, x_plot + 24, h - y_plot - 16);
+        float val_x = game.get(i).value.get(xIndex);
+        float val_y = game.get(i).value.get(yIndex);
+        float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+        float y_plot = map(val_y, min_y, max_y, 0, h);
+        if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
+          alphaScale = 1.0;
+          if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+          fill(255, alphaScale*255); stroke(255, alphaScale*255); 
+          text(i+1, x_plot + 24, h - y_plot - 16);
+        }
       }
     }
     popMatrix();

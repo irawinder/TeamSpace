@@ -62,7 +62,7 @@ PFont f12, f18, f24;
 boolean initialized;
 boolean showLoad;
 int initPhase = 0;
-int phaseDelay = 2000;
+int phaseDelay = 0;
 String status[] = {
   "Initializing Canvas ...",
   "Loading Data ...",
@@ -168,8 +168,8 @@ void initToolbars() {
   bar_B.explanation = "";
   bar_B.controlY = BAR_Y + MARGIN + int(0.25*bar_B.CONTROL_H);
   
-  bar_B.addRadio("Simulated Trade Space", 200, true, '1', false);
-  bar_B.addRadio("Team Space",            200, true, '1', false);
+  bar_B.addRadio("Simulated Trade Space", 200, true,  '1', false);
+  bar_B.addRadio("Team Space",            200, true,  '1', false);
   bar_B.addRadio("Log Entry",             200, false, '1', false);
   int beg = 3;
   
