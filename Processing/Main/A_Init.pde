@@ -250,6 +250,7 @@ void initSimResult() {
   for (int i=0; i<numKPI; i++) {
     String name = tradeSpaceCSV.getString(0, i);
     tradeSpace.name.add(name);
+    tradeSpace.unit.add("");
   }
   tradeSpace.addResults(tradeSpaceCSV);
   
@@ -299,6 +300,7 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   
   GamePlot tS = new GamePlot();
   tS.name = tradeSpace.name;
+  tS.unit = tradeSpace.unit;
   tS.col = col;
   tS.highlight = true;
   
