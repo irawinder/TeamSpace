@@ -52,8 +52,8 @@ void render2D() {
   //
   if (!showEntry) {
     
-    textAlign(LEFT, TOP);
-    text("Use + / - keys to zoom in and out.\nClick and drag to pan.", bar_B.barX + 24, BAR_Y + BAR_H + MARGIN + 4);
+    textAlign(LEFT, TOP); fill(100);
+    text("Use + / - keys to zoom in and out.\nClick and drag to pan.\nPress ' z ' to zoom extents.", bar_B.barX + 24, BAR_Y + BAR_H + MARGIN + 4);
     
     tradeSpace.update(bar_B.barX, BAR_Y + BAR_H + MARGIN, bar_B.barW, height - 4*MARGIN - BAR_H);
     for (int i=0; i<teamSpace.length; i++) teamSpace[i].update(bar_B.barX, BAR_Y + BAR_H + MARGIN, bar_B.barW, height - 4*MARGIN - BAR_H);
