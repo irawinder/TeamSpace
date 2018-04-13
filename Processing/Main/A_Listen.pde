@@ -134,10 +134,14 @@ void keyPressed() { if (initialized) {
         tradeSpace.zoom = 0;
         tradeSpace.offset_x = 0;
         tradeSpace.offset_y = 0;
+        tradeSpace.origin_x = 0;
+        tradeSpace.origin_y = 0;
       for (int i=0; i<teamSpace.length; i++) {
         teamSpace[i].zoom = 0;
         teamSpace[i].offset_x = 0;
         teamSpace[i].offset_y = 0;
+        teamSpace[i].origin_x = 0;
+        teamSpace[i].origin_y = 0;
       }
         break;
   }
