@@ -465,9 +465,9 @@ class FingerPlot {
   
   void addChange(int t, String a, ArrayList<String> before, ArrayList<String> after) {
     ArrayList<Boolean> b = new ArrayList<Boolean>();
+    boolean changed = false;
+    
     for (int i=0; i<before.size(); i++) {
-      
-      boolean changed = false;
       
       if ( finger.size() < 2 ) {
         b.add(false);

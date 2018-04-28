@@ -337,10 +337,10 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   //}
   tC.name.add("Fleet");
   tC.name.add("Bunker_PER");
-  tC.name.add("Bunker_JAP");
-  tC.name.add("Bunker_SIN");
   tC.name.add("Method_PER");
+  tC.name.add("Bunker_JAP");
   tC.name.add("Method_JAP");
+  tC.name.add("Bunker_SIN");
   tC.name.add("Method_SIN");
   
   // Update Plots with Log Info
