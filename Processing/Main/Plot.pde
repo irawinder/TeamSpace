@@ -358,7 +358,7 @@ class AttentionPlot {
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct, boolean showFocus, int rank, int tot_rank) {
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showRecAct, boolean showFocus, int rank, int tot_rank) {
     
     // Vertical spacing between elements
     //
@@ -374,39 +374,54 @@ class AttentionPlot {
         //  line(0, y_pos, w, y_pos); 
         //}
         
-        // Show Mouse click and release actions
-        //
-        strokeWeight(1);
-        for (int i=0; i<action.size(); i++) {
-          String a             = action.get(i);
-          int t                = timeStamp.get(i);
-          if (t >= minTime && t <= maxTime) {
-            int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
-            fill(50);
-            if (!a.equals("Simulate") && showOtherAct) {
-              stroke(50, 150);
-              line(x_i, 0, x_i, h);
-            } 
-          }
-        }
+        //// Show Mouse click and release actions
+        ////
+        //strokeWeight(1);
+        //for (int i=0; i<action.size(); i++) {
+        //  String a             = action.get(i);
+        //  int t                = timeStamp.get(i);
+        //  if (t >= minTime && t <= maxTime) {
+        //    int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+        //    fill(50);
+        //    if (!a.equals("Simulate") && showOtherAct) {
+        //      stroke(50, 150);
+        //      line(x_i, 0, x_i, h);
+        //    } 
+        //  }
+        //}
         
         // Show Mouse Simulate actions
         //
         strokeWeight(1); textAlign(CENTER, BOTTOM); 
         int simCounter = 0;
+        boolean recalled = false;
         for (int i=0; i<action.size(); i++) {
           String a             = action.get(i);
           int t                = timeStamp.get(i);
           int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
           fill(50);
-          if (a.equals("Simulate") && showSimAct) {
+          if (recalled) {
+            recalled = false;
+          } else if (a.substring(0,3).equals("Sim") && showSimAct) {
             simCounter++;
             if (t >= minTime && t <= maxTime) {
               stroke(#FFFF00, 150);
               line(x_i, 0, x_i, h);
               fill(255); text(simCounter, x_i, - 4);
             }
+          } else if (a.substring(0,3).equals("Rec") && showRecAct) {
+            simCounter++;
+            if (t >= minTime && t <= maxTime) {
+              stroke(#00FF00, 150);
+              line(x_i, 0, x_i, h);
+              fill(255); text(simCounter, x_i, - 4);
+            }
           }
+          
+          // Doesn't log simulations immediatedly initiated from a Recall event
+          //
+          if (a.substring(0,3).equals("Rec")) recalled = true;
+          
           if (a.equals("Start") && showSimAct) {
             if (t >= minTime && t <= maxTime) {
               stroke(#FF0000, 150); strokeWeight(2);
@@ -533,7 +548,7 @@ class ChangePlot {
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showOtherAct, boolean showFocus, int rank, int tot_rank) {
+  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showRecAct, boolean showFocus, int rank, int tot_rank) {
     
     // Vertical spacing between elements
     //
@@ -549,37 +564,60 @@ class ChangePlot {
         //  line(0, y_pos, w, y_pos); 
         //}
         
-        // Show Mouse click and release actions
-        //
-        strokeWeight(1);
-        for (int i=0; i<action.size(); i++) {
-          String a             = action.get(i);
-          int t                = timeStamp.get(i);
-          if (t >= minTime && t <= maxTime) {
-            int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
-            fill(50);
-            if (!a.equals("Simulate") && showOtherAct) {
-              stroke(50, 150);
-              line(x_i, 0, x_i, h);
-            } 
-          }
-        }
+        //// Show Mouse click and release actions
+        ////
+        //strokeWeight(1);
+        //for (int i=0; i<action.size(); i++) {
+        //  String a             = action.get(i);
+        //  int t                = timeStamp.get(i);
+        //  if (t >= minTime && t <= maxTime) {
+        //    int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
+        //    fill(50);
+        //    if (!a.equals("Simulate") && showOtherAct) {
+        //      stroke(50, 150);
+        //      line(x_i, 0, x_i, h);
+        //    } 
+        //  }
+        //}
         
         // Show Mouse Simulate actions
         //
         strokeWeight(1); textAlign(CENTER, BOTTOM); 
         int simCounter = 0;
+        boolean recalled = false;
         for (int i=0; i<action.size(); i++) {
           String a             = action.get(i);
           int t                = timeStamp.get(i);
           int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
           fill(50);
-          if (a.equals("Simulate") && showSimAct) {
+          if (recalled) {
+            recalled = false;
+          } else if (a.substring(0,3).equals("Sim") && showSimAct) {
             simCounter++;
             if (t >= minTime && t <= maxTime) {
               stroke(#FFFF00, 150);
               line(x_i, 0, x_i, h);
               fill(255); text(simCounter, x_i, - 4);
+            }
+          } else if (a.substring(0,3).equals("Rec") && showRecAct) {
+            simCounter++;
+            if (t >= minTime && t <= maxTime) {
+              stroke(#00FF00, 150);
+              line(x_i, 0, x_i, h);
+              fill(255); text(simCounter, x_i, - 4);
+            }
+          }
+          
+          // Doesn't log simulations immediatedly initiated from a Recall event
+          //
+          if (a.substring(0,3).equals("Rec")) recalled = true;
+          
+          // Show Software Startup Instances
+          if (a.equals("Start") && showSimAct) {
+            if (t >= minTime && t <= maxTime) {
+              stroke(#FF0000, 150); strokeWeight(2);
+              line(x_i, 0, x_i, h);
+              strokeWeight(1);
             }
           }
         }

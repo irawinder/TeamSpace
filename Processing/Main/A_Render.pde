@@ -90,7 +90,7 @@ void render2D() {
     for (int k=0; k<teamSpace.length; k++) {
       if (showTeam[k]) {
         int time = int(bar_A.sliders.get(2).value);
-        teamAttention[k].drawPlot(0, 0, bar_A.sliders.get(0).len, vert, minTime,  maxTime, time, showSimAct, showOtherAct, showFocus, k, teamSpace.length);  
+        teamAttention[k].drawPlot(0, 0, bar_A.sliders.get(0).len, vert, minTime,  maxTime, time, showSimAct, showRecAct, showFocus, k, teamSpace.length);  
       }
     }
   }
@@ -103,7 +103,7 @@ void render2D() {
     for (int k=0; k<teamSpace.length; k++) {
       if (showTeam[k]) {
         int time = int(bar_A.sliders.get(2).value); 
-        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN), minTime,  maxTime, time, showSimAct, showOtherAct, showFocus, k, teamSpace.length);  
+        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN), minTime,  maxTime, time, showSimAct, showRecAct, showFocus, k, teamSpace.length);  
       }
     }
   }

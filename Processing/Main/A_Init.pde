@@ -40,7 +40,7 @@ GamePlot tradeSpace;
 GamePlot[] teamSpace;
 AttentionPlot[] teamAttention;
 ChangePlot[] teamChange;
-boolean showTeams, showTrade, showAttention, showSimAct, showOtherAct, showFocus, showEntry;
+boolean showTeams, showTrade, showAttention, showSimAct, showRecAct, showFocus, showEntry;
 boolean[] showTeam;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
 
@@ -154,7 +154,8 @@ void initToolbars() {
   bar_A.addRadio("Team Attention", 200, true, '1', false);
   bar_A.addRadio("Action: 'Simulate'", 200, false, '1', false);
   bar_A.radios.get(1).col = #FFFF00;
-  bar_A.addRadio("Action: Other", 200, false, '1', false);
+  bar_A.addRadio("Action: 'Recall'", 200, false, '1', false);
+  bar_A.radios.get(2).col = #00FF00;
   
   for (int i=1; i<=2; i++) {
     bar_A.radios.get(i).xpos += i*(bar_A.barW-2*MARGIN)/3;
@@ -275,7 +276,7 @@ void initKeyLogs() {
   showTeams     = true;
   showAttention = true;
   showSimAct    = true;
-  showOtherAct  = true;
+  showRecAct  = true;
   showFocus     = true;
   showEntry     = false;
   
@@ -324,7 +325,7 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   for (int i=0; i<keyLog[logIndex].getColumnCount(); i++) {
     String name = keyLog[logIndex].getString(0, i);
     keyLogNames.add(name);
-    if (name.equals("Action")) begin = i+1;
+    if (name.equals("Action") || name.equals("Screen Height")) begin = i+1;
     if (name.equals("X_AXIS")) end   = i-1;
   }
   for (int i=begin; i<=end; i++) {
@@ -337,17 +338,18 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   int numFields = keyLog[logIndex].getColumnCount();
   int numLogs   = keyLog[logIndex].getRowCount();
   Table overall;
-  String timeString;
+  String[] timeString;
+  boolean recalled = false;
   
   for (int i=0; i<numLogs; i++) {
     
     // Read Time Value (seconds)
     //
-    timeString = keyLog[logIndex].getString(i, 0);
+    timeString = split(keyLog[logIndex].getString(i, 0), ":");
     int seconds, minutes, hours, time;
-    seconds = int(timeString.substring(6,8));
-    minutes = int(timeString.substring(3,5));
-    hours   = int(timeString.substring(0,2));
+    seconds = int(timeString[2]);
+    minutes = int(timeString[1]);
+    hours   = int(timeString[0]);
     time = seconds + minutes*60 + hours*60*60;
     
     // Update min/max time values
@@ -358,17 +360,23 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
     // Read KPI Values and Add them to gamePlot
     //
     String action = keyLog[logIndex].getString(i, "Action");
-    if (action.equals("Simulate")) {
+    if (recalled) {
+      recalled = false;
+    } else if (action.substring(0,3).equals("Sim")) {
       overall = new Table();
       overall.addRow();
       for (int j=0; j<numKPI; j++) {
         overall.addColumn();
         float value = keyLog[logIndex].getFloat(i, numFields - numKPI + j);
-        if (j == 1) value /= 0.000001; //  Unique to Maritime DSS Data from March 2018 Experiment
+        if (j == 1 && logFile[fileIndex].substring(0,2).equals("E1")) value /= 0.000001; //  Unique to Maritime DSS Data from March 2018 Experiment #1
         overall.setFloat(0, j, value);
       }
       tS.addResult(overall, time);
     }
+    
+    // Doesn't log simulations immediatedly initiated from a Recall event
+    //
+    if (action.substring(0,3).equals("Rec")) recalled = true;
     
     // Read Attention Values and Add them to AttentionPlot
     //
