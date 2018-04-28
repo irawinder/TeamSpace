@@ -128,7 +128,7 @@ void initToolbars() {
   
   // Main Toolbar
   //
-  bar_main = new Toolbar(BAR_X, BAR_Y, 1*BAR_W/3 - MARGIN/2 + 0, BAR_H, MARGIN);
+  bar_main = new Toolbar(BAR_X, BAR_Y, 1*BAR_W/3 - MARGIN/2 + 0, height - 2*MARGIN, MARGIN);
   bar_main.title = "TeamSpace IO\n";
   bar_main.credit = "Press ' r ' to reset\n";
   bar_main.explanation = "";
@@ -332,9 +332,16 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
     if (name.equals("Action") || name.equals("Screen Height")) begin = i+1;
     if (name.equals("X_AXIS")) end   = i-1;
   }
-  for (int i=begin; i<=end; i++) {
-    tC.name.add(keyLog[logIndex].getString(0, i));
-  }
+  //for (int i=begin; i<=end; i++) {
+  //  tC.name.add(keyLog[logIndex].getString(0, i));
+  //}
+  tC.name.add("Fleet");
+  tC.name.add("Bunker_PER");
+  tC.name.add("Bunker_JAP");
+  tC.name.add("Bunker_SIN");
+  tC.name.add("Method_PER");
+  tC.name.add("Method_JAP");
+  tC.name.add("Method_SIN");
   
   // Update Plots with Log Info
   //

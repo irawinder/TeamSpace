@@ -465,15 +465,62 @@ class FingerPlot {
   
   void addChange(int t, String a, ArrayList<String> before, ArrayList<String> after) {
     ArrayList<Boolean> b = new ArrayList<Boolean>();
-    for (int i=0; i<name.size(); i++) {
+    for (int i=0; i<before.size(); i++) {
+      
+      boolean changed = false;
       
       if ( finger.size() < 2 ) {
         b.add(false);
       } else {
-        if (before.get(i).equals(after.get(i))) {
-          b.add(false);
-        } else {
-          b.add(true);
+        
+        switch(i) {
+          case 0:
+            changed = false;
+            break;
+          case 4:
+            changed = false;
+            break;
+          case 7:
+            changed = false;
+            break;
+          case 10:
+            changed = false;
+            break;
+          case 13:
+            changed = false;
+            break;
+          case 16:
+            changed = false;
+            break;
+          case 19:
+            changed = false;
+            break;
+        }
+        
+        if(!before.get(i).equals(after.get(i))) changed = true;
+        
+        switch(i) {
+          case 3:
+            b.add(changed);
+            break;
+          case 6:
+            b.add(changed);
+            break;
+          case 9:
+            b.add(changed);
+            break;
+          case 12:
+            b.add(changed);
+            break;
+          case 15:
+            b.add(changed);
+            break;
+          case 18:
+            b.add(changed);
+            break;
+          case 21:
+            b.add(changed);
+            break;
         }
       }
     }
