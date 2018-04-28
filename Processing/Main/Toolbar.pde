@@ -160,17 +160,17 @@ class Toolbar {
     pushMatrix();
     translate(barX, barY);
     
-    // Shadow
-    pushMatrix(); translate(3, 3);
-    noStroke();
-    fill(0, 100);
-    rect(0, 0, barW, barH, margin);
-    popMatrix();
+    //// Shadow
+    //pushMatrix(); translate(3, 3);
+    //noStroke();
+    //fill(0, 100);
+    //rect(0, 0, barW, barH, margin);
+    //popMatrix();
     
-    // Canvas
-    fill(255, 20);
-    noStroke();
-    rect(0, 0, barW, barH, margin);
+    //// Canvas
+    //fill(255, 20);
+    //noStroke();
+    //rect(0, 0, barW, barH, margin);
     
     // Canvas Content
     translate(margin, margin);
