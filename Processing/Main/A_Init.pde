@@ -306,13 +306,7 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   tS.highlight = true;
   
   AttentionPlot tA = new AttentionPlot();
-  tA.name.add("Fuel Efficiency");
-  tA.name.add("Cargo Moved");
-  tA.name.add("CO2 Emission");
-  tA.name.add("NOx Emission");
-  tA.name.add("SOx Emission");
-  tA.name.add("Waiting Time");
-  tA.name.add("Initial Cost");
+  tA.name = tradeSpace.name;
   tA.col = col;
   
   // Name of Team's keylog file located in "/data/logs/..."

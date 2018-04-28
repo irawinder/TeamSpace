@@ -442,10 +442,14 @@ class AttentionPlot {
             int t_f              = timeStamp.get(i);
             ArrayList<Boolean> b = attention.get(i);  
             
-            if (t_i >= minTime && t_f <= maxTime) {
+            if ( (t_i >= minTime && t_i <= maxTime) || (t_f >= minTime && t_f <= maxTime) ) {
               
-              int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
-              int x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
+              int x_i = 0;
+              if (t_i >= minTime) x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+              
+              
+              int x_f = w;
+              if (t_f <= maxTime) x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
               
               for (int j=0; j<b.size(); j++) {
                 boolean viewing = b.get(j);
