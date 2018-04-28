@@ -75,6 +75,8 @@ class GamePlot {
     offset_y = 0;
     origin_x = 0;
     origin_y = 0;
+    selected = 0;
+    nearest = -1;
   }
   
   void addResult(Table result, int timeStamp) {
@@ -225,7 +227,7 @@ class GamePlot {
         
         alpha = 150;
         alphaScale = 1.0;
-        if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+        if (!inBounds(i, minTime, maxTime)) alphaScale = 0.0;
         
         if (i >= 1) {
           val_x = last.value.get(xIndex);
@@ -253,7 +255,7 @@ class GamePlot {
       float y_plot = map(val_y, min_y, max_y, 0, h);
       
       alphaScale = 1.0;
-      if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+      if (!inBounds(i, minTime, maxTime)) alphaScale = 0.0;
       
       if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
         
@@ -312,7 +314,7 @@ class GamePlot {
       float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
       float y_plot = map(val_y, min_y, max_y, 0, h);
       if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
-        fill(#DB8F00); noStroke();
+        fill(col); noStroke();
         ellipse(x_plot, h - y_plot, diameter+10, diameter+10);
         textAlign(CENTER, CENTER); fill(255);
         for (int i=0; i<3; i++) text(selected+1, x_plot, h - y_plot - 1);

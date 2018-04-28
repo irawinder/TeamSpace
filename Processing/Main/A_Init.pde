@@ -136,7 +136,7 @@ void initToolbars() {
   
   for (int i=0; i<teamSpace.length; i++) {
     String index = "" + (i+1);
-    bar_main.addRadio("" + logFile[fileIndex.get(i)], 200, true, index.charAt(0), true);
+    bar_main.addRadio("" + logFile[fileIndex.get(i)].substring(0,8), 200, true, index.charAt(0), true);
     bar_main.radios.get(i).col = teamSpace[i].col;
   }
   

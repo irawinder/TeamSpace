@@ -152,14 +152,19 @@ void keyPressed() { if (initialized) {
     } else if (keyCode == DOWN) {
       
     } else if (keyCode == LEFT) {
-      bar_A.sliders.get(0).value -= 60;
-      bar_A.sliders.get(1).value -= 60;
-      bar_A.sliders.get(2).value -= 60;
+      for (int i=0; i<teamSpace.length; i++) teamSpace[i].last();
     } else if (keyCode == RIGHT) {
-      bar_A.sliders.get(0).value += 60;
-      bar_A.sliders.get(1).value += 60;
-      bar_A.sliders.get(2).value += 60;
+      for (int i=0; i<teamSpace.length; i++) teamSpace[i].next();
     } 
+    //} else if (keyCode == LEFT) {
+    //  bar_A.sliders.get(0).value -= 60;
+    //  bar_A.sliders.get(1).value -= 60;
+    //  bar_A.sliders.get(2).value -= 60;
+    //} else if (keyCode == RIGHT) {
+    //  bar_A.sliders.get(0).value += 60;
+    //  bar_A.sliders.get(1).value += 60;
+    //  bar_A.sliders.get(2).value += 60;
+    //} 
   }
   
 } }
