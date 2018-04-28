@@ -38,8 +38,7 @@ ArrayList<Integer> fileIndex;
 //
 GamePlot tradeSpace;
 GamePlot[] teamSpace;
-AttentionPlot[] teamAttention;
-ChangePlot[] teamChange;
+FingerPlot[] teamAttention, teamChange;
 boolean showTeams, showTrade, showAttention, showSimAct, showRecAct, showFocus, showEntry;
 boolean[] showTeam;
 int MIN_TIME, MAX_TIME, minTime, maxTime;
@@ -271,8 +270,8 @@ void initKeyLogs() {
   
   keyLog = new Table[fileIndex.size()];
   teamSpace = new GamePlot[fileIndex.size()];
-  teamChange = new ChangePlot[fileIndex.size()];
-  teamAttention = new AttentionPlot[fileIndex.size()];
+  teamChange = new FingerPlot[fileIndex.size()];
+  teamAttention = new FingerPlot[fileIndex.size()];
   
   showTeams     = true;
   showAttention = true;
@@ -300,19 +299,29 @@ void initKeyLogs() {
 
 void initKeyLog(int logIndex, int fileIndex, int col) {
   
+  // KPI Values over time
+  //
   GamePlot tS = new GamePlot();
   tS.name = tradeSpace.name;
   tS.unit = tradeSpace.unit;
   tS.col = col;
   //tS.highlight = true;
   
-  AttentionPlot tA = new AttentionPlot();
+  // KPI Attention
+  //
+  FingerPlot tA = new FingerPlot();
   tA.name = tradeSpace.name;
+  tA.instantaneous = false;
   tA.col = col;
+  
+  // Changes to Inputs
+  //
+  FingerPlot tC = new FingerPlot();
+  tC.instantaneous = true;
+  tC.col = col;
   
   // Name of Team's keylog file located in "/data/logs/..."
   //
-  ChangePlot tC = new ChangePlot();
   keyLog[logIndex] = loadTable("data/logs/" + logFile[fileIndex]);
   int begin = 0;
   int end = keyLog[logIndex].getColumnCount()-1;
@@ -326,8 +335,9 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   for (int i=begin; i<=end; i++) {
     tC.name.add(keyLog[logIndex].getString(0, i));
   }
-  tC.col = col;
   
+  // Update Plots with Log Info
+  //
   keyLog[logIndex] = loadTable("data/logs/" + logFile[fileIndex], "header");
   int numKPI    = tS.name.size();
   int numFields = keyLog[logIndex].getColumnCount();
@@ -377,7 +387,7 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
     //
     String x_attention = keyLog[logIndex].getString(i, "X_AXIS");
     String y_attention = keyLog[logIndex].getString(i, "Y_AXIS");
-    tA.addResult(time, action, x_attention, y_attention);
+    tA.addMatch(time, action, x_attention, y_attention);
     
     // Read Change Values and Add them to ChangePlot
     //
@@ -391,7 +401,7 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
       }
       after.add(keyLog[logIndex].getString(i, j));
     }
-    tC.addResult(time, action, before, after);
+    tC.addChange(time, action, before, after);
     
   }
   

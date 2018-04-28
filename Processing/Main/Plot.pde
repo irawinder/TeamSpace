@@ -418,35 +418,36 @@ String trimValue(String val, int figures) {
   return trimmed;
 }
 
-class AttentionPlot {
-  
+class FingerPlot {
   ArrayList<String> name;
   
-  ArrayList<ArrayList<Boolean>> attention;
+  ArrayList<ArrayList<Boolean>> finger;
   ArrayList<Integer> timeStamp;
   ArrayList<String> action;
   
   boolean showAxes;
+  boolean instantaneous;
   int col;
   
-  AttentionPlot() {
+  FingerPlot() {
     
     name      = new ArrayList<String>();
     
     action    = new ArrayList<String>();
     timeStamp = new ArrayList<Integer>();
-    attention = new ArrayList<ArrayList<Boolean>>();
+    finger    = new ArrayList<ArrayList<Boolean>>();
     
     showAxes = true;
+    instantaneous = false;
     col = 255;
   }
   
-  AttentionPlot(ArrayList<String> name) {
+  FingerPlot(ArrayList<String> name) {
     super();
     this.name = name;
   }
   
-  void addResult(int t, String a, String x, String y) {
+  void addMatch(int t, String a, String x, String y) {
     ArrayList<Boolean> b = new ArrayList<Boolean>();
     for (String n: name) {
       if ( n.equals(x) || n.equals(y) ) {
@@ -455,191 +456,16 @@ class AttentionPlot {
         b.add(false);
       }
     }
-    attention.add(b);
+    finger.add(b);
     timeStamp.add(t);
     action.add(a);
   }
   
-  void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showRecAct, boolean showFocus, int rank, int tot_rank) {
-    
-    // Vertical spacing between elements
-    //
-    int spacer = h/name.size();
-    
-    pushMatrix(); translate(x, y);
-    
-        //// Draw Graph Grid
-        ////
-        //noFill(); stroke(25); strokeWeight(1);
-        //for (int i=0; i<name.size(); i++) {
-        //  int y_pos = spacer/2 + i*spacer;
-        //  line(0, y_pos, w, y_pos); 
-        //}
-        
-        //// Show Mouse click and release actions
-        ////
-        //strokeWeight(1);
-        //for (int i=0; i<action.size(); i++) {
-        //  String a             = action.get(i);
-        //  int t                = timeStamp.get(i);
-        //  if (t >= minTime && t <= maxTime) {
-        //    int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
-        //    fill(50);
-        //    if (!a.equals("Simulate") && showOtherAct) {
-        //      stroke(50, 150);
-        //      line(x_i, 0, x_i, h);
-        //    } 
-        //  }
-        //}
-        
-        // Show Mouse Simulate actions
-        //
-        strokeWeight(1); textAlign(CENTER, BOTTOM); 
-        int simCounter = 0;
-        boolean recalled = false;
-        for (int i=0; i<action.size(); i++) {
-          String a             = action.get(i);
-          int t                = timeStamp.get(i);
-          int x_i = int( w * float(t - minTime) / (maxTime - minTime) );
-          fill(50);
-          if (recalled) {
-            recalled = false;
-          } else if (a.substring(0,3).equals("Sim") && showSimAct) {
-            simCounter++;
-            if (t >= minTime && t <= maxTime) {
-              stroke(#FFFF00, 150);
-              line(x_i, 0, x_i, h);
-              fill(255); text(simCounter, x_i, - 4);
-            }
-          } else if (a.substring(0,3).equals("Rec") && showRecAct) {
-            simCounter++;
-            if (t >= minTime && t <= maxTime) {
-              stroke(#00FF00, 150);
-              line(x_i, 0, x_i, h);
-              fill(255); text(simCounter, x_i, - 4);
-            }
-          }
-          
-          // Doesn't log simulations immediatedly initiated from a Recall event
-          //
-          if (a.substring(0,3).equals("Rec")) recalled = true;
-          
-          if (a.equals("Start") && showSimAct) {
-            if (t >= minTime && t <= maxTime) {
-              stroke(#FF0000, 150); strokeWeight(2);
-              line(x_i, 0, x_i, h);
-              strokeWeight(1);
-            }
-          }
-        }
-        
-        // Plot Attention
-        //
-        if (showFocus) {
-          int weight = int( h/10/tot_rank );
-          strokeWeight(weight); stroke(col); noFill();
-          for (int i=1; i<action.size(); i++) {
-            String a             = action.get(i);
-            int t_i              = timeStamp.get(i-1);
-            int t_f              = timeStamp.get(i);
-            ArrayList<Boolean> b = attention.get(i);  
-            
-            if ( (t_i >= minTime && t_i <= maxTime) || (t_f >= minTime && t_f <= maxTime) ) {
-              
-              int x_i = 0;
-              if (t_i >= minTime) x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
-              
-              
-              int x_f = w;
-              if (t_f <= maxTime) x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
-              
-              for (int j=0; j<b.size(); j++) {
-                boolean viewing = b.get(j);
-                int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
-                if (viewing) line(x_i, vert, x_f, vert);
-              }
-              
-            }
-          }
-        }
-          
-        // Show Primary Time Notch
-        //
-        int x_t = int( w * float(time - minTime) / (maxTime - minTime) );
-        stroke(255); strokeWeight(2);
-        line(x_t, -10, x_t, 0);
-        line(x_t, h, x_t, h + 4);
-        stroke(255); strokeWeight(1);
-        line(x_t, 0, x_t, h);
-        int hour     = time/(60*60);
-        int minute   = (time - hour*60*60)/60;
-        int second = (time - hour*60*60 - minute*60);
-        fill(255); textAlign(CENTER, TOP);
-        text(hour + ":" + minute + ":" + second, x_t, h + 8);
-        
-        // Show min/max time notches
-        //
-        stroke(255); strokeWeight(1);
-        x_t = int( w * float(minTime - minTime) / (maxTime - minTime) );
-        line(x_t, -5, x_t, h + 5);
-        x_t = int( w * float(maxTime - minTime) / (maxTime - minTime) );
-        line(x_t, -5, x_t, h + 5);
-        
-        if (showAxes) {
-          
-          // Draw Border
-          //
-          stroke(255); strokeWeight(1); noFill();
-          rect(0, 0, w, h);
-          fill(255);
-          
-          // Draw Y Axis Lables
-          //
-          textAlign(RIGHT, CENTER);
-          for (int i=0; i<name.size(); i++) {
-            String n = name.get(i);
-            text(n, - 8, spacer/2 + i*spacer);
-          }
-        }
-    
-    popMatrix();
-    
-  }
-}
-
-class ChangePlot {
-  
-  ArrayList<String> name;
-  
-  ArrayList<ArrayList<Boolean>> change;
-  ArrayList<Integer> timeStamp;
-  ArrayList<String> action;
-  
-  boolean showAxes;
-  int col;
-  
-  ChangePlot() {
-    
-    name      = new ArrayList<String>();
-    
-    action    = new ArrayList<String>();
-    timeStamp = new ArrayList<Integer>();
-    change    = new ArrayList<ArrayList<Boolean>>();
-    
-    showAxes = true;
-    col = 255;
-  }
-  
-  ChangePlot(ArrayList<String> name) {
-    super();
-    this.name = name;
-  }
-  
-  void addResult(int t, String a, ArrayList<String> before, ArrayList<String> after) {
+  void addChange(int t, String a, ArrayList<String> before, ArrayList<String> after) {
     ArrayList<Boolean> b = new ArrayList<Boolean>();
     for (int i=0; i<name.size(); i++) {
       
-      if ( change.size() < 2 ) {
+      if ( finger.size() < 2 ) {
         b.add(false);
       } else {
         if (before.get(i).equals(after.get(i))) {
@@ -649,19 +475,21 @@ class ChangePlot {
         }
       }
     }
-    change.add(b);
+    finger.add(b);
     timeStamp.add(t);
     action.add(a);
   }
   
   void drawPlot(int x, int y, int w, int h, int minTime, int maxTime, int time, boolean showSimAct, boolean showRecAct, boolean showFocus, int rank, int tot_rank) {
     
+    // Ranks are used to stagger bars when multiple items share a field
+    
     // Vertical spacing between elements
     //
     int spacer = h/name.size();
     
     pushMatrix(); translate(x, y);
-        
+    
         //// Draw Graph Grid
         ////
         //noFill(); stroke(25); strokeWeight(1);
@@ -718,7 +546,6 @@ class ChangePlot {
           //
           if (a.substring(0,3).equals("Rec")) recalled = true;
           
-          // Show Software Startup Instances
           if (a.equals("Start") && showSimAct) {
             if (t >= minTime && t <= maxTime) {
               stroke(#FF0000, 150); strokeWeight(2);
@@ -728,23 +555,57 @@ class ChangePlot {
           }
         }
         
-        // Plot Change
+        // Plot Attention Data
         //
         if (showFocus) {
-          hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
-          fill(col); noStroke();
-          for (int i=0; i<action.size(); i++) {
-            int t_i              = timeStamp.get(i);
-            ArrayList<Boolean> b = change.get(i);  
-            if (t_i >= minTime && t_i <= maxTime) {
-              int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
-              for (int j=0; j<b.size(); j++) {
-                boolean changed = b.get(j);
-                //int vert = spacer/2 + j*spacer - 1 * tot_rank / 2 + 2 * rank;
-                int vert = spacer/2 + j*spacer;
-                if (changed) ellipse(x_i, vert, 5, 5);
+          if (instantaneous) {
+            
+            // Show Instantaneous "Blips"
+            //
+            hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
+            fill(col); noStroke();
+            for (int i=0; i<action.size(); i++) {
+              int t_i              = timeStamp.get(i);
+              ArrayList<Boolean> b = finger.get(i);  
+              if (t_i >= minTime && t_i <= maxTime) {
+                int x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+                for (int j=0; j<b.size(); j++) {
+                  boolean changed = b.get(j);
+                  //int vert = spacer/2 + j*spacer - 1 * tot_rank / 2 + 2 * rank;
+                  int vert = spacer/2 + j*spacer;
+                  if (changed) ellipse(x_i, vert, 5, 5);
+                }
               }
             }
+            
+          } else {
+            
+            // Connect Gaps Between True/False States
+            //
+            int weight = int( h/10/tot_rank );
+            strokeWeight(weight); stroke(col); noFill();
+            for (int i=1; i<action.size(); i++) {
+              String a             = action.get(i);
+              int t_i              = timeStamp.get(i-1);
+              int t_f              = timeStamp.get(i);
+              ArrayList<Boolean> b = finger.get(i);  
+              
+              if ( (t_i >= minTime && t_i <= maxTime) || (t_f >= minTime && t_f <= maxTime) ) {
+                
+                int x_i = 0;
+                if (t_i >= minTime) x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
+                
+                int x_f = w;
+                if (t_f <= maxTime) x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
+                
+                for (int j=0; j<b.size(); j++) {
+                  boolean viewing = b.get(j);
+                  int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
+                  if (viewing) line(x_i, vert, x_f, vert);
+                }
+              }
+            }
+            
           }
         }
           
