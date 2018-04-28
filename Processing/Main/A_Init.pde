@@ -246,6 +246,7 @@ void initSimResult() {
   tradeSpaceCSV = loadTable("data/" + filefolder + filename);
   tradeSpace = new GamePlot();
   tradeSpace.showPath = false;
+  tradeSpace.allowSelect = false;
   tradeSpace.col = 50;
   int numKPI = tradeSpaceCSV.getColumnCount();
   for (int i=0; i<numKPI; i++) {
@@ -303,7 +304,7 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
   tS.name = tradeSpace.name;
   tS.unit = tradeSpace.unit;
   tS.col = col;
-  tS.highlight = true;
+  //tS.highlight = true;
   
   AttentionPlot tA = new AttentionPlot();
   tA.name = tradeSpace.name;

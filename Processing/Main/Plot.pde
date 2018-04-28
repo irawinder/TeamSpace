@@ -3,11 +3,14 @@ class GamePlot {
   ArrayList<String> name, unit;
   ArrayList<Float> minRange, maxRange;
   int xIndex, yIndex;
+  int nearest, nearestThreshold;
+  int selected;
   int col;
 
   boolean showPath;
   boolean showAxes;
   boolean highlight;
+  boolean allowSelect;
   
   float zoom;
   float offset_x, offset_y, origin_x, origin_y;
@@ -15,17 +18,23 @@ class GamePlot {
   boolean isDragged;
   int x_init, y_init;
   
+  PGraphics interior;
+  
   GamePlot() {
     game = new ArrayList<Ilities>();
     name = new ArrayList<String>();
     unit = new ArrayList<String>();
     minRange = new ArrayList<Float>();
     maxRange = new ArrayList<Float>();
-    xIndex = 0;
-    yIndex = 0;
+    xIndex  = 0;
+    yIndex  = 0;
+    nearest = 0;
+    selected = 0;
+    nearestThreshold = 10;
     showPath = true;
     showAxes = true;
     highlight = false;
+    allowSelect = true;
     col = 255;
     
     zoom = 0.0;
@@ -33,6 +42,8 @@ class GamePlot {
     offset_y = 0;
     origin_x = 0;
     origin_y = 0;
+    
+    interior = createGraphics(10, 10);
   }
   
   void click() {
@@ -45,6 +56,17 @@ class GamePlot {
     isDragged = false;
     origin_x = offset_x;
     origin_y = offset_y;
+    if (nearest >=0) selected = nearest;
+  }
+  
+  void next() {
+    selected++;
+    if (selected >= game.size()) selected = 0;
+  }
+  
+  void last() {
+    selected--;
+    if (selected <= -1) selected = game.size()-1;
   }
   
   void reset() {
@@ -59,6 +81,7 @@ class GamePlot {
     Ilities i = new Ilities(result, timeStamp);
     game.add(i);
     updateRange();
+    selected = game.size()-1;
   }
 
   void addResults(Table results) {
@@ -72,6 +95,7 @@ class GamePlot {
       game.add(ilit);
     }
     updateRange();
+    selected = game.size()-1;
   }
 
   void update(int x, int y, int w, int h) {
@@ -100,6 +124,7 @@ class GamePlot {
     max_x += - zoom*range_x + offset_x*range_x;
     
     int MARGIN = 20;
+    interior = createGraphics(w-MARGIN, h);
     pushMatrix(); translate(x+MARGIN, y);
     
     if (showAxes) {
@@ -164,66 +189,143 @@ class GamePlot {
       }
     }
     
-    // Plot points
+    // Derive Nearest Architecture / Game State
     //
-    float diameter = 10;
+    nearest = -1;
+    if (allowSelect) {
+      float minDist = Float.POSITIVE_INFINITY;
+      for (int i=0; i<game.size(); i++) {
+        float val_x = game.get(i).value.get(xIndex);
+        float val_y = game.get(i).value.get(yIndex);
+        float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+        float y_plot = map(val_y, min_y, max_y, 0, h);
+        
+        // Update Nearest Game State Index
+        //
+        float dist = sqrt( sq(mouseX - x - MARGIN - x_plot) + sq(mouseY - y - h + y_plot) );
+        if (dist < nearestThreshold && dist < minDist) {
+          minDist = dist;
+          nearest = i;
+        }
+      }
+    }
+  
+    // Plot links
+    //
     float alpha, alphaScale;
-    Ilities last = new Ilities();
+    if (showPath) {
+      interior.beginDraw();
+      interior.clear();
+      Ilities last = new Ilities();
+      for (int i=0; i<game.size(); i++) {
+        float val_x = game.get(i).value.get(xIndex);
+        float val_y = game.get(i).value.get(yIndex);
+        float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+        float y_plot = map(val_y, min_y, max_y, 0, h);
+        
+        alpha = 150;
+        alphaScale = 1.0;
+        if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+        
+        if (i >= 1) {
+          val_x = last.value.get(xIndex);
+          val_y = last.value.get(yIndex);
+          float x_plot_last = map(val_x, min_x, max_x, 0, w-MARGIN);
+          float y_plot_last = map(val_y, min_y, max_y, 0, h);
+          //if ( (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) || 
+          //     (x_plot_last > 0 && x_plot_last < w-MARGIN && y_plot_last > 0 && y_plot_last < h) ) {
+            interior.stroke(col, alphaScale*alpha); interior.strokeWeight(3); 
+            interior.line(x_plot_last, h - y_plot_last, x_plot, h - y_plot);
+          //}
+        }
+        last = game.get(i);
+      }
+      image(interior, 0, 0, w-MARGIN, h);
+    }
+    
+    // Plot Points
+    //
+    float diameter = 8;
     for (int i=0; i<game.size(); i++) {
       float val_x = game.get(i).value.get(xIndex);
       float val_y = game.get(i).value.get(yIndex);
       float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
       float y_plot = map(val_y, min_y, max_y, 0, h);
-      if (showPath) {
-        //alpha = 255.0*float(i+1)/game.size();
-        alpha = 100;
-      } else {
-        alpha = 255;
-      }
+      
       alphaScale = 1.0;
       if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
       
       if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
         
-        if (i >= 1 && showPath) {
-          val_x = last.value.get(xIndex);
-          val_y = last.value.get(yIndex);
-          float x_plot_last = map(val_x, min_x, max_x, 0, w-MARGIN);
-          float y_plot_last = map(val_y, min_y, max_y, 0, h);
-          if (x_plot_last > 0 && x_plot_last < w-MARGIN && y_plot_last > 0 && y_plot_last < h) {
-            stroke(col, alphaScale*alpha); strokeWeight(3); 
-            line(x_plot_last, h - y_plot_last, x_plot, h - y_plot);
-          }
-        }
-        noStroke(); fill(col, alphaScale*255); 
+        noStroke(); fill(col, alphaScale*255);
         if (highlight) {
           stroke(#FFFF00, alphaScale*255); 
           strokeWeight(1); 
         }
-        ellipse(x_plot, h - y_plot, diameter, diameter);
-      
+        if (i != selected) ellipse(x_plot, h - y_plot, diameter, diameter);
+        
       }
-
-      last = game.get(i);
     }
     
-    // Draw point Labels
-    //
     hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
-    for (int i=0; i<game.size(); i++) {
-      if (showPath) {
-        float val_x = game.get(i).value.get(xIndex);
-        float val_y = game.get(i).value.get(yIndex);
-        float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
-        float y_plot = map(val_y, min_y, max_y, 0, h);
-        if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
-          alphaScale = 1.0;
-          if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
-          fill(255, alphaScale*255); stroke(255, alphaScale*255); 
-          text(i+1, x_plot + 18, h - y_plot - 12);
-        }
+    
+    //// Draw point Labels
+    ////
+    //for (int i=0; i<game.size(); i++) {
+    //  if (showPath) {
+    //    float val_x = game.get(i).value.get(xIndex);
+    //    float val_y = game.get(i).value.get(yIndex);
+    //    float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+    //    float y_plot = map(val_y, min_y, max_y, 0, h);
+    //    if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
+    //      alphaScale = 1.0;
+    //      if (!inBounds(i, minTime, maxTime)) alphaScale = 0.1;
+    //      fill(255, alphaScale*255); stroke(255, alphaScale*255); 
+    //      if (i == selected) fill(#DB8F00);
+    //      text(i+1, x_plot + 12, h - y_plot - 12);
+    //    }
+    //  }
+    //}
+    
+    // Draw Nearest Point Marker
+    //
+    if (nearest >=0 && nearest != selected && game.size() > 0) {
+      
+      float val_x = game.get(nearest).value.get(xIndex);
+      float val_y = game.get(nearest).value.get(yIndex);
+      float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+      float y_plot = map(val_y, min_y, max_y, 0, h);
+      if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
+        strokeWeight(2); stroke(#DB8F00); noFill();
+        ellipse(x_plot, h - y_plot, diameter+4, diameter+4);
+        fill(#FFAA00); noStroke();
+        textAlign(LEFT, BOTTOM);
       }
+      for (int i=0; i<3; i++) text((nearest+1), x_plot + 8, h - y_plot - 8);
     }
+    
+    // Draw Selected Point Marker
+    //
+    if (selected >=0 && game.size() > 0 && allowSelect) {
+      float val_x = game.get(selected).value.get(xIndex);
+      float val_y = game.get(selected).value.get(yIndex);
+      float x_plot = map(val_x, min_x, max_x, 0, w-MARGIN);
+      float y_plot = map(val_y, min_y, max_y, 0, h);
+      if (x_plot > 0 && x_plot < w-MARGIN && y_plot > 0 && y_plot < h) {
+        fill(#DB8F00); noStroke();
+        ellipse(x_plot, h - y_plot, diameter+10, diameter+10);
+        textAlign(CENTER, CENTER); fill(255);
+        for (int i=0; i<3; i++) text(selected+1, x_plot, h - y_plot - 1);
+      }
+      
+      String values = "";
+      values += name.get(xIndex) + ": " + trimValue("" + val_x, 2) + " " + unit.get(xIndex);
+      values += "\n";
+      values += name.get(yIndex) + ": " + trimValue("" + val_y, 2) + " " + unit.get(yIndex);
+      textAlign(LEFT, BOTTOM); fill(#FFAA00);
+      text(values, 8, h - 8);
+    }
+    
     popMatrix();
   }
   
@@ -251,8 +353,8 @@ class GamePlot {
           minRange.add(r.value.get(i) - 1.0);
           maxRange.add(r.value.get(i) + 1.0);
         } else {
-          minRange.add(r.value.get(i) - 0.2*r.value.get(i));
-          maxRange.add(r.value.get(i) + 0.2*r.value.get(i));
+          minRange.add(r.value.get(i) - 0.25*r.value.get(i));
+          maxRange.add(r.value.get(i) + 0.25*r.value.get(i));
         }
       }
     } else {
@@ -264,15 +366,15 @@ class GamePlot {
           if (max < r.value.get(i)) max = r.value.get(i);
         }
         if (min != max) {
-          minRange.add(min - 0.2*(max-min));
-          maxRange.add(max + 0.2*(max-min));
+          minRange.add(min - 0.25*(max-min));
+          maxRange.add(max + 0.25*(max-min));
         } else {
           if (min == 0) {
             minRange.add(-1.0);
             maxRange.add(+1.0);
           } else {
-            minRange.add(min - 0.2*min);
-            maxRange.add(max + 0.2*max);
+            minRange.add(min - 0.25*min);
+            maxRange.add(max + 0.25*max);
           }
         }
       }
