@@ -81,7 +81,7 @@ void render2D() {
   }
   
   
-  int vert = (height - BAR_H - 3*MARGIN)/4;
+  int vert = 9*(height - BAR_H - 3*MARGIN)/20;
   
   // Plot Attention Graphs
   //

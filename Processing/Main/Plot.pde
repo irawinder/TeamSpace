@@ -480,21 +480,21 @@ class FingerPlot {
           case 4:
             changed = false;
             break;
-          case 7:
-            changed = false;
-            break;
-          case 10:
-            changed = false;
-            break;
-          case 13:
-            changed = false;
-            break;
-          case 16:
-            changed = false;
-            break;
-          case 19:
-            changed = false;
-            break;
+          //case 7:
+          //  changed = false;
+          //  break;
+          //case 10:
+          //  changed = false;
+          //  break;
+          //case 13:
+          //  changed = false;
+          //  break;
+          //case 16:
+          //  changed = false;
+          //  break;
+          //case 19:
+          //  changed = false;
+          //  break;
         }
         
         if(!before.get(i).equals(after.get(i))) changed = true;
@@ -503,24 +503,24 @@ class FingerPlot {
           case 3:
             b.add(changed);
             break;
-          case 6:
-            b.add(changed);
-            break;
-          case 9:
-            b.add(changed);
-            break;
-          case 12:
-            b.add(changed);
-            break;
-          case 15:
-            b.add(changed);
-            break;
-          case 18:
-            b.add(changed);
-            break;
           case 21:
             b.add(changed);
             break;
+          //case 9:
+          //  b.add(changed);
+          //  break;
+          //case 12:
+          //  b.add(changed);
+          //  break;
+          //case 15:
+          //  b.add(changed);
+          //  break;
+          //case 18:
+          //  b.add(changed);
+          //  break;
+          //case 21:
+          //  b.add(changed);
+          //  break;
         }
       }
     }
@@ -611,6 +611,7 @@ class FingerPlot {
         
         // Show Instantaneous "Blips"
         //
+        int weight = int( h/10/tot_rank );
         hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
         fill(col); noStroke();
         for (int i=0; i<action.size(); i++) {
@@ -621,8 +622,9 @@ class FingerPlot {
             for (int j=0; j<b.size(); j++) {
               boolean changed = b.get(j);
               //int vert = spacer/2 + j*spacer - 1 * tot_rank / 2 + 2 * rank;
-              int vert = spacer/2 + j*spacer;
-              if (changed) ellipse(x_i, vert, 5, 5);
+              //int vert = spacer/2 + j*spacer;
+              int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
+              if (changed) rect(x_i, vert, weight, weight);
             }
           }
         }
@@ -632,6 +634,7 @@ class FingerPlot {
         // Connect Gaps Between True/False States
         //
         int weight = int( h/10/tot_rank );
+        hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
         strokeWeight(weight); stroke(col); noFill();
         for (int i=1; i<action.size(); i++) {
           String a             = action.get(i);

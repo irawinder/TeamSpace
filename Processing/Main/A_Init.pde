@@ -330,18 +330,13 @@ void initKeyLog(int logIndex, int fileIndex, int col) {
     String name = keyLog[logIndex].getString(0, i);
     keyLogNames.add(name);
     if (name.equals("Action") || name.equals("Screen Height")) begin = i+1;
-    if (name.equals("X_AXIS")) end   = i-1;
+    if (name.equals("Hour")) end   = i-1;
   }
   //for (int i=begin; i<=end; i++) {
   //  tC.name.add(keyLog[logIndex].getString(0, i));
   //}
   tC.name.add("Fleet");
-  tC.name.add("Bunker_PER");
-  tC.name.add("Method_PER");
-  tC.name.add("Bunker_JAP");
-  tC.name.add("Method_JAP");
-  tC.name.add("Bunker_SIN");
-  tC.name.add("Method_SIN");
+  tC.name.add("Bunker");
   
   // Update Plots with Log Info
   //
