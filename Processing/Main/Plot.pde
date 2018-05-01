@@ -480,21 +480,21 @@ class FingerPlot {
           case 4:
             changed = false;
             break;
-          //case 7:
-          //  changed = false;
-          //  break;
-          //case 10:
-          //  changed = false;
-          //  break;
-          //case 13:
-          //  changed = false;
-          //  break;
-          //case 16:
-          //  changed = false;
-          //  break;
-          //case 19:
-          //  changed = false;
-          //  break;
+          case 7:
+            changed = false;
+            break;
+          case 10:
+            changed = false;
+            break;
+          case 13:
+            changed = false;
+            break;
+          case 16:
+            changed = false;
+            break;
+          case 19:
+            changed = false;
+            break;
         }
         
         if(!before.get(i).equals(after.get(i))) changed = true;
@@ -503,24 +503,24 @@ class FingerPlot {
           case 3:
             b.add(changed);
             break;
+          case 6:
+            b.add(changed);
+            break;
+          case 9:
+            b.add(changed);
+            break;
+          case 12:
+            b.add(changed);
+            break;
+          case 15:
+            b.add(changed);
+            break;
+          case 18:
+            b.add(changed);
+            break;
           case 21:
             b.add(changed);
             break;
-          //case 9:
-          //  b.add(changed);
-          //  break;
-          //case 12:
-          //  b.add(changed);
-          //  break;
-          //case 15:
-          //  b.add(changed);
-          //  break;
-          //case 18:
-          //  b.add(changed);
-          //  break;
-          //case 21:
-          //  b.add(changed);
-          //  break;
         }
       }
     }
