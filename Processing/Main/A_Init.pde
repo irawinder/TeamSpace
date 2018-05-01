@@ -96,7 +96,7 @@ void init() {
       
       // Init Data
       // 
-      initSimConfig();
+      //initSimConfig();
       initSimResult();
       initKeyLogs();
       
