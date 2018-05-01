@@ -81,7 +81,8 @@ void render2D() {
   }
   
   
-  int vert = (height - BAR_H - 3*MARGIN)/4;
+  //int vert = (height - BAR_H - 3*MARGIN)/4;
+  int vert = height - 4*MARGIN - BAR_H;
   
   // Plot Attention Graphs
   //
@@ -96,6 +97,8 @@ void render2D() {
   }
   popMatrix();
   
+  /*
+  
   // Plot Change Graphs
   //
   pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN);
@@ -108,6 +111,8 @@ void render2D() {
     }
   }
   popMatrix();
+  
+  */
 }
 
 PImage loadingBG;

@@ -136,13 +136,13 @@ void initToolbars() {
   
   for (int i=0; i<teamSpace.length; i++) {
     String index = "" + (i+1);
-    bar_main.addRadio("" + logFile[fileIndex.get(i)].substring(0,8), 200, true, index.charAt(0), true);
+    bar_main.addRadio("" + logFile[fileIndex.get(i)], 200, true, index.charAt(0), true);
     bar_main.radios.get(i).col = teamSpace[i].col;
   }
   
   // A Toolbar
   //
-  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN, BAR_Y, 2*BAR_W/3 - MARGIN/2 + 75, BAR_H, MARGIN);
+  bar_A = new Toolbar(BAR_X + bar_main.barW + MARGIN + 150, BAR_Y, 2*BAR_W/3 - MARGIN/2 + 75 - 150, BAR_H, MARGIN);
   bar_A.title = "";
   bar_A.credit = "";
   bar_A.explanation = "";
@@ -153,11 +153,11 @@ void initToolbars() {
   bar_A.addRadio("Team Attention", 200, true, '1', false);
   bar_A.addRadio("Action: 'Simulate'", 200, false, '1', false);
   bar_A.radios.get(1).col = #FFFF00;
-  bar_A.addRadio("Action: 'Recall'", 200, false, '1', false);
-  bar_A.radios.get(2).col = #00FF00;
+  //bar_A.addRadio("Action: 'Recall'", 200, false, '1', false);
+  //bar_A.radios.get(2).col = #00FF00;
   
-  for (int i=1; i<=2; i++) {
-    bar_A.radios.get(i).xpos += i*(bar_A.barW-2*MARGIN)/3;
+  for (int i=1; i<=1; i++) {
+    bar_A.radios.get(i).xpos += i*(bar_A.barW-2*MARGIN)/2;
     bar_A.radios.get(i).ypos = bar_A.radios.get(0).ypos;
   }
   
