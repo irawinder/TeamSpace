@@ -151,7 +151,7 @@ void initToolbars() {
   bar_A.addSlider("Time - MAX Threshold (sec)", "", minTime, maxTime, maxTime, 1, 'a', 's', false);
   bar_A.addSlider("Time (sec)", "", minTime, maxTime, minTime, 1, 'z', 'x', false);
   bar_A.addRadio("Team Attention", 200, true, '1', false);
-  bar_A.addRadio("Action: 'Simulate'", 200, false, '1', false);
+  bar_A.addRadio("Action: 'End Turn'", 200, false, '1', false);
   bar_A.radios.get(1).col = #FFFF00;
   //bar_A.addRadio("Action: 'Recall'", 200, false, '1', false);
   //bar_A.radios.get(2).col = #00FF00;

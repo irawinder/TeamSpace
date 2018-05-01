@@ -84,6 +84,8 @@ void render2D() {
   //int vert = (height - BAR_H - 3*MARGIN)/4;
   int vert = height - 4*MARGIN - BAR_H;
   
+  /*
+  
   // Plot Attention Graphs
   //
   pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN);
@@ -97,22 +99,22 @@ void render2D() {
   }
   popMatrix();
   
-  /*
+  */
   
   // Plot Change Graphs
   //
-  pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN);
+  //pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN);
+  pushMatrix(); translate(bar_A.sliders.get(0).xpos, BAR_Y + BAR_H + MARGIN);
   if (showAttention) {
     for (int k=0; k<teamSpace.length; k++) {
       if (showTeam[k]) {
         int time = int(bar_A.sliders.get(2).value); 
-        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN), minTime,  maxTime, time, showSimAct, showRecAct, showFocus, k, teamSpace.length);  
+        //teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, height - 2*MARGIN - (BAR_Y + BAR_H + MARGIN + vert + 2*MARGIN), minTime,  maxTime, time, showSimAct, showRecAct, showFocus, k, teamSpace.length);
+        teamChange[k].drawPlot(0, 0, bar_A.sliders.get(0).len, vert, minTime,  maxTime, time, showSimAct, showRecAct, showFocus, k, teamSpace.length);
       }
     }
   }
   popMatrix();
-  
-  */
 }
 
 PImage loadingBG;
