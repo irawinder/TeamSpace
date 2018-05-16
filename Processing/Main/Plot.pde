@@ -564,6 +564,7 @@ class FingerPlot {
         
         // Show Instantaneous "Blips"
         //
+        int weight = int( h/10/tot_rank );
         hint(ENABLE_DEPTH_TEST); hint(DISABLE_DEPTH_TEST);
         fill(col); noStroke();
         for (int i=0; i<action.size(); i++) {
@@ -574,8 +575,9 @@ class FingerPlot {
             for (int j=0; j<b.size(); j++) {
               boolean changed = b.get(j);
               //int vert = spacer/2 + j*spacer - 1 * tot_rank / 2 + 2 * rank;
-              int vert = spacer/2 + j*spacer;
-              if (changed) ellipse(x_i, vert, 5, 5);
+              //int vert = spacer/2 + j*spacer;
+              int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
+              if (changed) rect(x_i, vert, 0.75*weight, 0.75*weight);
             }
           }
         }
@@ -598,7 +600,7 @@ class FingerPlot {
             if (t_i >= minTime) x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
             
             int x_f = w;
-            if (t_f <= maxTime) x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
+            if (t_f <= maxTime) x_f = max(3, int( w * float(t_f - minTime) / (maxTime - minTime) ) );
             
             for (int j=0; j<b.size(); j++) {
               boolean viewing = b.get(j);
