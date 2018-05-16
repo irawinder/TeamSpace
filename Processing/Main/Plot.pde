@@ -648,7 +648,7 @@ class FingerPlot {
             if (t_i >= minTime) x_i = int( w * float(t_i - minTime) / (maxTime - minTime) );
             
             int x_f = w;
-            if (t_f <= maxTime) x_f = int( w * float(t_f - minTime) / (maxTime - minTime) );
+            if (t_f <= maxTime) x_f = int( w * float(t_f - minTime) / (maxTime - minTime) ) + 2;
             
             for (int j=0; j<b.size(); j++) {
               boolean viewing = b.get(j);
