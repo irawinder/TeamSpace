@@ -431,6 +431,10 @@ class FingerPlot {
   boolean instantaneous;
   int col;
   
+  // Keep Track of Total Time
+  //
+  FloatList t_count;
+  
   FingerPlot() {
     
     name      = new ArrayList<String>();
@@ -438,6 +442,7 @@ class FingerPlot {
     action    = new ArrayList<String>();
     timeStamp = new ArrayList<Integer>();
     finger    = new ArrayList<ArrayList<Boolean>>();
+    t_count   = new FloatList();
     
     showAxes = true;
     instantaneous = false;
@@ -537,6 +542,11 @@ class FingerPlot {
     //
     int spacer = h/name.size();
     
+    // Keep Track of Total Time
+    //
+    t_count.clear();
+    for(int i=0; i<name.size(); i++) t_count.append(0.0);
+    
     pushMatrix(); translate(x, y);
     
     //// Draw Graph Grid
@@ -568,6 +578,7 @@ class FingerPlot {
     strokeWeight(1); textAlign(CENTER, BOTTOM); 
     int simCounter = 0;
     boolean recalled = false;
+    int blipCount = 0;
     for (int i=0; i<action.size(); i++) {
       String a             = action.get(i);
       int t                = timeStamp.get(i);
@@ -624,7 +635,15 @@ class FingerPlot {
               //int vert = spacer/2 + j*spacer - 1 * tot_rank / 2 + 2 * rank;
               //int vert = spacer/2 + j*spacer;
               int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
-              if (changed) rect(x_i, vert, weight, weight);
+              if (changed) {
+                
+                rect(x_i, vert, weight, weight);
+              
+                // Keep Track of Total Blips
+                //
+                blipCount++;
+                t_count.add(j, 1);
+              }
             }
           }
         }
@@ -653,14 +672,35 @@ class FingerPlot {
             for (int j=0; j<b.size(); j++) {
               boolean viewing = b.get(j);
               int vert = spacer/2 + j*spacer - h/10/2 + rank*weight;
-              if (viewing) line(x_i, vert, x_f, vert);
+              if (viewing) {
+                
+                line(x_i, vert, x_f, vert);
+                
+                // Keep Track of Total Time
+                //
+                t_count.add(j, t_f - t_i);
+              }
             }
           }
         }
         
       }
     }
-      
+    
+    // Keep Track of Total Time
+    //
+    if (!instantaneous) {
+      for(int i=0; i<name.size(); i++) {
+        t_count.div(i, maxTime - minTime);
+        println(name.get(i), t_count.get(i));
+      }
+    } else {
+      for(int i=0; i<name.size(); i++) {
+        t_count.div(i, blipCount);
+        println(name.get(i), t_count.get(i));
+      }
+    }
+        
     // Show Primary Time Notch
     //
     int x_t = int( w * float(time - minTime) / (maxTime - minTime) );
